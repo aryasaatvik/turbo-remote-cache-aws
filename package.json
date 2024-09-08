@@ -1,5 +1,5 @@
 {
-  "name": "aws-turbo-remote-cache",
+  "name": "turbo-remote-cache-aws",
   "version": "0.1.0",
   "bin": {
     "turbo-remote-cache": "bin/turbo-remote-cache.js"
