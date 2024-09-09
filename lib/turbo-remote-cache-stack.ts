@@ -90,6 +90,48 @@ export class TurboRemoteCacheStack extends cdk.Stack {
       },
     });
 
+    const initiateLoginFunction = new lambda.Function(this, 'InitiateLoginFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'initiate-login')),
+      environment: {
+        TURBO_TOKEN: process.env.TURBO_TOKEN!,
+      },
+    });
+
+    const loginSuccessFunction = new lambda.Function(this, 'LoginSuccessFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'login-success')),
+      environment: {
+        TURBO_TOKEN: process.env.TURBO_TOKEN!,
+      },
+    });
+
+    const getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-user-info')),
+    });
+
+    const getTeamsFunction = new lambda.Function(this, 'GetTeamsFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-teams')),
+    });
+
+    const getSpecificTeamFunction = new lambda.Function(this, 'GetSpecificTeamFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-specific-team')),
+    });
+
+    const getSpacesFunction = new lambda.Function(this, 'GetSpacesFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-spaces')),
+    });
+
     // Grant necessary permissions
     artifactsBucket.grantReadWrite(uploadArtifactFunction);
     artifactsBucket.grantRead(downloadArtifactFunction);
@@ -136,6 +178,29 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     hashResource.addMethod('HEAD', new apigateway.LambdaIntegration(artifactExistsFunction));
 
     artifactsResource.addMethod('POST', new apigateway.LambdaIntegration(artifactQueryFunction));
+
+    // Create resources and methods for new endpoints
+    const turborepoResource = api.root.addResource('turborepo');
+    const tokenResource = turborepoResource.addResource('token');
+    tokenResource.addMethod('GET', new apigateway.LambdaIntegration(initiateLoginFunction));
+
+    const successResource = turborepoResource.addResource('success');
+    successResource.addMethod('GET', new apigateway.LambdaIntegration(loginSuccessFunction));
+
+    const v2Resource = api.root.addResource('v2');
+
+    const userResource = v2Resource.addResource('user');
+    userResource.addMethod('GET', new apigateway.LambdaIntegration(getUserInfoFunction));
+
+    const teamsResource = v2Resource.addResource('teams');
+    teamsResource.addMethod('GET', new apigateway.LambdaIntegration(getTeamsFunction));
+
+    const specificTeamResource = teamsResource.addResource('{teamId}');
+    specificTeamResource.addMethod('GET', new apigateway.LambdaIntegration(getSpecificTeamFunction));
+
+    const v0Resource = api.root.addResource('v0');
+    const spacesResource = v0Resource.addResource('spaces');
+    spacesResource.addMethod('GET', new apigateway.LambdaIntegration(getSpacesFunction));
 
     new cdk.CfnOutput(this, 'ApiUrl', {
       value: api.url,
