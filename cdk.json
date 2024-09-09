@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/aws-turbo-remote-cache.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/turbo-remote-cache.ts",
   "watch": {
     "include": [
       "**"
