@@ -173,9 +173,154 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     statusResource.addMethod('GET', new apigateway.LambdaIntegration(statusFunction));
 
     const hashResource = artifactsResource.addResource('{hash}');
-    hashResource.addMethod('PUT', new apigateway.LambdaIntegration(uploadArtifactFunction));
-    hashResource.addMethod('GET', new apigateway.LambdaIntegration(downloadArtifactFunction));
-    hashResource.addMethod('HEAD', new apigateway.LambdaIntegration(artifactExistsFunction));
+    const putIntegration = new apigateway.AwsIntegration({
+      service: 's3',
+      integrationHttpMethod: 'PUT',
+      path: `${artifactsBucket.bucketName}/artifacts/{hash}`,
+      options: {
+        credentialsRole: s3Credentials,
+        integrationResponses: [
+          {
+            statusCode: '200',
+            responseTemplates: {
+              'application/json': JSON.stringify({ success: true }),
+            },
+          },
+        ],
+        requestParameters: {
+          'integration.request.path.hash': 'method.request.path.hash',
+          'integration.request.header.Content-Type': 'method.request.header.Content-Type',
+        },
+      },
+    });
+    hashResource.addMethod('PUT', putIntegration, {
+      requestParameters: {
+        'method.request.path.hash': true,
+        'method.request.header.Content-Type': true,
+      },
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apigateway.Model.EMPTY_MODEL,
+          },
+        },
+      ],
+    });
+
+    const getIntegration = new apigateway.AwsIntegration({
+      service: 's3',
+      integrationHttpMethod: 'GET',
+      path: `${artifactsBucket.bucketName}/artifacts/{hash}`,
+      options: {
+        credentialsRole: s3Credentials,
+        integrationResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Content-Type': 'integration.response.header.Content-Type',
+            },
+            contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
+          },
+          {
+            selectionPattern: '404',
+            statusCode: '404',
+            responseTemplates: {
+              'application/json': JSON.stringify({
+                message: 'Object not found',
+                error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
+              }),
+            },
+          },
+          {
+            selectionPattern: '5\\d{2}',
+            statusCode: '500',
+            responseTemplates: {
+              'application/json': JSON.stringify({
+                message: 'Internal server error',
+                error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
+              }),
+            },
+          },
+        ],
+        requestParameters: {
+          'integration.request.path.hash': 'method.request.path.hash',
+        },
+      },
+    });
+
+    hashResource.addMethod('GET', getIntegration, {
+      requestParameters: {
+        'method.request.path.hash': true,
+      },
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Content-Type': true,
+          },
+        },
+        {
+          statusCode: '404',
+          responseModels: {
+            'application/json': apigateway.Model.ERROR_MODEL,
+          },
+        },
+        {
+          statusCode: '500',
+          responseModels: {
+            'application/json': apigateway.Model.ERROR_MODEL,
+          },
+        },
+      ],
+    });
+
+    const headIntegration = new apigateway.AwsIntegration({
+      service: 's3',
+      integrationHttpMethod: 'HEAD',
+      path: `${artifactsBucket.bucketName}/artifacts/{hash}`,
+      options: {
+        credentialsRole: s3Credentials,
+        integrationResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Content-Length': 'integration.response.header.Content-Length',
+              'method.response.header.Content-Type': 'integration.response.header.Content-Type',
+              'method.response.header.ETag': 'integration.response.header.ETag',
+              'method.response.header.Last-Modified': 'integration.response.header.Last-Modified',
+            },
+          },
+          {
+            selectionPattern: '404',
+            statusCode: '404',
+          },
+        ],
+        requestParameters: {
+          'integration.request.path.hash': 'method.request.path.hash',
+        },
+      },
+    });
+
+    hashResource.addMethod('HEAD', headIntegration, {
+      requestParameters: {
+        'method.request.path.hash': true,
+      },
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Content-Length': true,
+            'method.response.header.Content-Type': true,
+            'method.response.header.ETag': true,
+            'method.response.header.Last-Modified': true,
+          },
+        },
+        {
+          statusCode: '404',
+        },
+      ],
+    });
 
     artifactsResource.addMethod('POST', new apigateway.LambdaIntegration(artifactQueryFunction));
 
