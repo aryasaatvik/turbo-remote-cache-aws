@@ -54,33 +54,6 @@ export class TurboRemoteCacheStack extends cdk.Stack {
       },
     });
 
-    const uploadArtifactFunction = new lambda.Function(this, 'UploadArtifactFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'upload-artifact')),
-      environment: {
-        BUCKET_NAME: artifactsBucket.bucketName,
-      },
-    });
-
-    const downloadArtifactFunction = new lambda.Function(this, 'DownloadArtifactFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'download-artifact')),
-      environment: {
-        BUCKET_NAME: artifactsBucket.bucketName,
-      },
-    });
-
-    const artifactExistsFunction = new lambda.Function(this, 'ArtifactExistsFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'artifact-exists')),
-      environment: {
-        BUCKET_NAME: artifactsBucket.bucketName,
-      },
-    });
-
     const artifactQueryFunction = new lambda.Function(this, 'ArtifactQueryFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
@@ -133,9 +106,6 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     });
 
     // Grant necessary permissions
-    artifactsBucket.grantReadWrite(uploadArtifactFunction);
-    artifactsBucket.grantRead(downloadArtifactFunction);
-    artifactsBucket.grantRead(artifactExistsFunction);
     artifactsBucket.grantRead(artifactQueryFunction);
     artifactsBucket.grantReadWrite(recordEventsFunction);
     artifactsBucket.grantRead(statusFunction);
@@ -181,28 +151,74 @@ export class TurboRemoteCacheStack extends cdk.Stack {
         credentialsRole: s3Credentials,
         integrationResponses: [
           {
-            statusCode: '200',
+            statusCode: '202',
             responseTemplates: {
-              'application/json': JSON.stringify({ success: true }),
+              'application/json': JSON.stringify({
+                urls: [
+                  "https://$util.escapeJavaScript($context.domainName)/artifacts/$input.params('hash')"
+                ]
+              }),
+            },
+            responseParameters: {
+              'method.response.header.Content-Type': "'application/json'",
+            },
+          },
+          {
+            selectionPattern: '4\\d{2}',
+            statusCode: '400',
+            responseTemplates: {
+              'application/json': JSON.stringify({ message: 'Bad request' }),
             },
           },
         ],
         requestParameters: {
           'integration.request.path.hash': 'method.request.path.hash',
-          'integration.request.header.Content-Type': 'method.request.header.Content-Type',
+          'integration.request.header.Content-Length': 'method.request.header.Content-Length',
+          'integration.request.header.x-amz-meta-artifact-duration': 'method.request.header.x-artifact-duration',
+          'integration.request.header.x-amz-meta-artifact-client-ci': 'method.request.header.x-artifact-client-ci',
+          'integration.request.header.x-amz-meta-artifact-client-interactive': 'method.request.header.x-artifact-client-interactive',
+          'integration.request.header.x-amz-meta-artifact-tag': 'method.request.header.x-artifact-tag',
         },
       },
     });
+
     hashResource.addMethod('PUT', putIntegration, {
       requestParameters: {
         'method.request.path.hash': true,
-        'method.request.header.Content-Type': true,
+        'method.request.header.Content-Length': true,
+        'method.request.header.x-artifact-duration': false,
+        'method.request.header.x-artifact-client-ci': false,
+        'method.request.header.x-artifact-client-interactive': false,
+        'method.request.header.x-artifact-tag': false,
       },
       methodResponses: [
         {
-          statusCode: '200',
+          statusCode: '202',
           responseModels: {
-            'application/json': apigateway.Model.EMPTY_MODEL,
+            'application/json': new apigateway.Model(this, 'PutArtifactResponseModel', {
+              restApi: api,
+              contentType: 'application/json',
+              modelName: 'PutArtifactResponse',
+              schema: {
+                type: apigateway.JsonSchemaType.OBJECT,
+                properties: {
+                  urls: {
+                    type: apigateway.JsonSchemaType.ARRAY,
+                    items: { type: apigateway.JsonSchemaType.STRING },
+                  },
+                },
+                required: ['urls'],
+              },
+            }),
+          },
+          responseParameters: {
+            'method.response.header.Content-Type': true,
+          },
+        },
+        {
+          statusCode: '400',
+          responseModels: {
+            'application/json': apigateway.Model.ERROR_MODEL,
           },
         },
       ],
