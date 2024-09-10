@@ -105,10 +105,20 @@ export class TurboRemoteCacheStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-spaces')),
     });
 
+    const preflightFunction = new lambda.Function(this, 'PreflightFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'preflight-artifact')),
+      environment: {
+        ARTIFACTS_BUCKET: artifactsBucket.bucketName,
+      },
+    });
+
     // Grant necessary permissions
     artifactsBucket.grantRead(artifactQueryFunction);
     artifactsBucket.grantReadWrite(recordEventsFunction);
     artifactsBucket.grantRead(statusFunction);
+    artifactsBucket.grantReadWrite(preflightFunction);
 
     const logGroup = logs.LogGroup.fromLogGroupName(this, 'LogGroup', '/aws/apigateway/turbo-remote-cache-api');
 
@@ -125,11 +135,6 @@ export class TurboRemoteCacheStack extends cdk.Stack {
         tracingEnabled: true,
       },
       binaryMediaTypes: ['application/octet-stream'],
-      defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
-      },
     });
 
     // Create resources and methods
@@ -143,6 +148,9 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     statusResource.addMethod('GET', new apigateway.LambdaIntegration(statusFunction));
 
     const hashResource = artifactsResource.addResource('{hash}');
+
+    hashResource.addMethod('OPTIONS', new apigateway.LambdaIntegration(preflightFunction));
+
     const putIntegration = new apigateway.AwsIntegration({
       service: 's3',
       integrationHttpMethod: 'PUT',
