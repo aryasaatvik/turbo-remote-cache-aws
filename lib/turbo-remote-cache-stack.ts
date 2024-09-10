@@ -36,19 +36,19 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
     artifactsBucket.grantReadWrite(s3Credentials);
 
-    const recordEventsFunction = new lambda.Function(this, 'RecordEventsFunction', {
+    const statusFunction = new lambda.Function(this, 'StatusFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'record-events')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'status')),
       environment: {
         BUCKET_NAME: artifactsBucket.bucketName,
       },
     });
 
-    const statusFunction = new lambda.Function(this, 'StatusFunction', {
+    const recordEventsFunction = new lambda.Function(this, 'RecordEventsFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'status')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'record-events')),
       environment: {
         BUCKET_NAME: artifactsBucket.bucketName,
       },
@@ -63,6 +63,7 @@ export class TurboRemoteCacheStack extends cdk.Stack {
       },
     });
 
+    // turbo login
     const initiateLoginFunction = new lambda.Function(this, 'InitiateLoginFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
@@ -87,24 +88,6 @@ export class TurboRemoteCacheStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-user-info')),
     });
 
-    const getTeamsFunction = new lambda.Function(this, 'GetTeamsFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-teams')),
-    });
-
-    const getSpecificTeamFunction = new lambda.Function(this, 'GetSpecificTeamFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-specific-team')),
-    });
-
-    const getSpacesFunction = new lambda.Function(this, 'GetSpacesFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-spaces')),
-    });
-
     // Grant necessary permissions
     artifactsBucket.grantRead(artifactQueryFunction);
     artifactsBucket.grantReadWrite(recordEventsFunction);
@@ -125,11 +108,6 @@ export class TurboRemoteCacheStack extends cdk.Stack {
         tracingEnabled: true,
       },
       binaryMediaTypes: ['application/octet-stream'],
-      defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
-      },
     });
 
     // Create resources and methods
@@ -143,6 +121,121 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     statusResource.addMethod('GET', new apigateway.LambdaIntegration(statusFunction));
 
     const hashResource = artifactsResource.addResource('{hash}');
+
+    const headIntegration = new apigateway.AwsIntegration({
+      service: 's3',
+      integrationHttpMethod: 'HEAD',
+      path: `${artifactsBucket.bucketName}/artifacts/{hash}`,
+      options: {
+        credentialsRole: s3Credentials,
+        integrationResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Content-Length': 'integration.response.header.Content-Length',
+              'method.response.header.Content-Type': 'integration.response.header.Content-Type',
+              'method.response.header.ETag': 'integration.response.header.ETag',
+              'method.response.header.Last-Modified': 'integration.response.header.Last-Modified',
+            },
+          },
+          {
+            selectionPattern: '404',
+            statusCode: '404',
+          },
+        ],
+        requestParameters: {
+          'integration.request.path.hash': 'method.request.path.hash',
+        },
+      },
+    });
+
+    hashResource.addMethod('HEAD', headIntegration, {
+      requestParameters: {
+        'method.request.path.hash': true,
+      },
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Content-Length': true,
+            'method.response.header.Content-Type': true,
+            'method.response.header.ETag': true,
+            'method.response.header.Last-Modified': true,
+          },
+        },
+        {
+          statusCode: '404',
+        },
+      ],
+    });
+
+    const getIntegration = new apigateway.AwsIntegration({
+      service: 's3',
+      integrationHttpMethod: 'GET',
+      path: `${artifactsBucket.bucketName}/artifacts/{hash}`,
+      options: {
+        credentialsRole: s3Credentials,
+        integrationResponses: [
+          {
+            statusCode: '200',
+            responseParameters: {
+              'method.response.header.Content-Type': 'integration.response.header.Content-Type',
+            },
+            contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
+          },
+          {
+            selectionPattern: '404',
+            statusCode: '404',
+            responseTemplates: {
+              'application/json': JSON.stringify({
+                message: 'Object not found',
+                error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
+              }),
+            },
+          },
+          {
+            selectionPattern: '5\\d{2}',
+            statusCode: '500',
+            responseTemplates: {
+              'application/json': JSON.stringify({
+                message: 'Internal server error',
+                error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
+              }),
+            },
+          },
+        ],
+        requestParameters: {
+          'integration.request.path.hash': 'method.request.path.hash',
+        },
+      },
+    });
+
+    hashResource.addMethod('GET', getIntegration, {
+      requestParameters: {
+        'method.request.path.hash': true,
+      },
+      methodResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Content-Type': true,
+          },
+        },
+        {
+          statusCode: '404',
+          responseModels: {
+            'application/json': apigateway.Model.ERROR_MODEL,
+          },
+        },
+        {
+          statusCode: '500',
+          responseModels: {
+            'application/json': apigateway.Model.ERROR_MODEL,
+          },
+        },
+      ],
+    });
+
     const putIntegration = new apigateway.AwsIntegration({
       service: 's3',
       integrationHttpMethod: 'PUT',
@@ -224,123 +317,9 @@ export class TurboRemoteCacheStack extends cdk.Stack {
       ],
     });
 
-    const getIntegration = new apigateway.AwsIntegration({
-      service: 's3',
-      integrationHttpMethod: 'GET',
-      path: `${artifactsBucket.bucketName}/artifacts/{hash}`,
-      options: {
-        credentialsRole: s3Credentials,
-        integrationResponses: [
-          {
-            statusCode: '200',
-            responseParameters: {
-              'method.response.header.Content-Type': 'integration.response.header.Content-Type',
-            },
-            contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
-          },
-          {
-            selectionPattern: '404',
-            statusCode: '404',
-            responseTemplates: {
-              'application/json': JSON.stringify({
-                message: 'Object not found',
-                error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
-              }),
-            },
-          },
-          {
-            selectionPattern: '5\\d{2}',
-            statusCode: '500',
-            responseTemplates: {
-              'application/json': JSON.stringify({
-                message: 'Internal server error',
-                error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
-              }),
-            },
-          },
-        ],
-        requestParameters: {
-          'integration.request.path.hash': 'method.request.path.hash',
-        },
-      },
-    });
-
-    hashResource.addMethod('GET', getIntegration, {
-      requestParameters: {
-        'method.request.path.hash': true,
-      },
-      methodResponses: [
-        {
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Content-Type': true,
-          },
-        },
-        {
-          statusCode: '404',
-          responseModels: {
-            'application/json': apigateway.Model.ERROR_MODEL,
-          },
-        },
-        {
-          statusCode: '500',
-          responseModels: {
-            'application/json': apigateway.Model.ERROR_MODEL,
-          },
-        },
-      ],
-    });
-
-    const headIntegration = new apigateway.AwsIntegration({
-      service: 's3',
-      integrationHttpMethod: 'HEAD',
-      path: `${artifactsBucket.bucketName}/artifacts/{hash}`,
-      options: {
-        credentialsRole: s3Credentials,
-        integrationResponses: [
-          {
-            statusCode: '200',
-            responseParameters: {
-              'method.response.header.Content-Length': 'integration.response.header.Content-Length',
-              'method.response.header.Content-Type': 'integration.response.header.Content-Type',
-              'method.response.header.ETag': 'integration.response.header.ETag',
-              'method.response.header.Last-Modified': 'integration.response.header.Last-Modified',
-            },
-          },
-          {
-            selectionPattern: '404',
-            statusCode: '404',
-          },
-        ],
-        requestParameters: {
-          'integration.request.path.hash': 'method.request.path.hash',
-        },
-      },
-    });
-
-    hashResource.addMethod('HEAD', headIntegration, {
-      requestParameters: {
-        'method.request.path.hash': true,
-      },
-      methodResponses: [
-        {
-          statusCode: '200',
-          responseParameters: {
-            'method.response.header.Content-Length': true,
-            'method.response.header.Content-Type': true,
-            'method.response.header.ETag': true,
-            'method.response.header.Last-Modified': true,
-          },
-        },
-        {
-          statusCode: '404',
-        },
-      ],
-    });
-
     artifactsResource.addMethod('POST', new apigateway.LambdaIntegration(artifactQueryFunction));
 
-    // Create resources and methods for new endpoints
+    // turbo login
     const turborepoResource = api.root.addResource('turborepo');
     const tokenResource = turborepoResource.addResource('token');
     tokenResource.addMethod('GET', new apigateway.LambdaIntegration(initiateLoginFunction));
@@ -352,20 +331,5 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
     const userResource = v2Resource.addResource('user');
     userResource.addMethod('GET', new apigateway.LambdaIntegration(getUserInfoFunction));
-
-    const teamsResource = v2Resource.addResource('teams');
-    teamsResource.addMethod('GET', new apigateway.LambdaIntegration(getTeamsFunction));
-
-    const specificTeamResource = teamsResource.addResource('{teamId}');
-    specificTeamResource.addMethod('GET', new apigateway.LambdaIntegration(getSpecificTeamFunction));
-
-    const v0Resource = api.root.addResource('v0');
-    const spacesResource = v0Resource.addResource('spaces');
-    spacesResource.addMethod('GET', new apigateway.LambdaIntegration(getSpacesFunction));
-
-    new cdk.CfnOutput(this, 'ApiUrl', {
-      value: api.url,
-      description: 'Turbo Remote Cache API URL',
-    });
   }
 }
