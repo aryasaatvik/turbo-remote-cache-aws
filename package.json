@@ -5,7 +5,7 @@
     "turbo-remote-cache": "bin/turbo-remote-cache.js"
   },
   "scripts": {
-    "build:lambda": "tsc -p lambda/tsconfig.json",
+    "build:lambda": "tsc -p lambda/tsconfig.json && esbuild lambda/src/**/*.ts --bundle --format=esm --platform=node --target=node20 --outdir=lambda/dist --out-extension:.js=.mjs --minify --external:@aws-sdk/client-s3",
     "build": "pnpm run build:lambda && cdk synth",
     "deploy": "pnpm run build && cdk deploy",
     "watch": "tsc -w",
@@ -29,6 +29,7 @@
     "aws-cdk-lib": "2.156.0",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
+    "esbuild": "^0.23.1",
     "source-map-support": "^0.5.21"
   }
 }

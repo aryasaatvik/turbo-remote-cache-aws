@@ -38,8 +38,8 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
     const statusFunction = new lambda.Function(this, 'StatusFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'status')),
+      handler: 'status.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
       environment: {
         BUCKET_NAME: artifactsBucket.bucketName,
       },
@@ -47,8 +47,8 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
     const recordEventsFunction = new lambda.Function(this, 'RecordEventsFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'record-events')),
+      handler: 'record-events.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
       environment: {
         BUCKET_NAME: artifactsBucket.bucketName,
       },
@@ -56,8 +56,8 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
     const artifactQueryFunction = new lambda.Function(this, 'ArtifactQueryFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'artifact-query')),
+      handler: 'artifact-query.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
       environment: {
         BUCKET_NAME: artifactsBucket.bucketName,
       },
@@ -66,8 +66,8 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     // turbo login
     const initiateLoginFunction = new lambda.Function(this, 'InitiateLoginFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'initiate-login')),
+      handler: 'initiate-login.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
       environment: {
         TURBO_TOKEN: process.env.TURBO_TOKEN!,
       },
@@ -75,8 +75,8 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
     const loginSuccessFunction = new lambda.Function(this, 'LoginSuccessFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'login-success')),
+      handler: 'login-success.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
       environment: {
         TURBO_TOKEN: process.env.TURBO_TOKEN!,
       },
@@ -84,8 +84,8 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
     const getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist', 'get-user-info')),
+      handler: 'get-user-info.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
     });
 
     // Grant necessary permissions
