@@ -60,18 +60,9 @@ importers:
 
   apps/infrastructure:
     dependencies:
-      '@aws-sdk/client-s3':
-        specifier: ^3.645.0
-        version: 3.645.0
-      '@aws-sdk/s3-request-presigner':
-        specifier: ^3.645.0
-        version: 3.645.0
       aws-cdk-lib:
         specifier: 2.156.0
         version: 2.156.0(constructs@10.3.0)
-      aws-lambda:
-        specifier: ^1.0.7
-        version: 1.0.7
       constructs:
         specifier: ^10.0.0
         version: 10.3.0
@@ -82,9 +73,6 @@ importers:
         specifier: ^0.5.21
         version: 0.5.21
     devDependencies:
-      '@types/aws-lambda':
-        specifier: ^8.10.145
-        version: 8.10.145
       '@types/jest':
         specifier: ^29.5.12
         version: 29.5.12
@@ -94,9 +82,6 @@ importers:
       aws-cdk:
         specifier: 2.156.0
         version: 2.156.0
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.14.9)(ts-node@10.9.2(@types/node@20.14.9)(typescript@5.5.4))
