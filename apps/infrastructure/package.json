@@ -1,7 +1,17 @@
 {
-  "name": "turbo-remote-cache-construct",
+  "name": "turbo-remote-cache-aws",
   "version": "0.1.0",
+  "bin": {
+    "turbo-remote-cache": "bin/turbo-remote-cache.js"
+  },
   "scripts": {
+    "build:lambda": "tsc -p lambda/tsconfig.json && esbuild lambda/src/**/*.ts --bundle --format=esm --platform=node --target=node20 --outdir=lambda/dist --out-extension:.js=.mjs --minify --external:@aws-sdk/client-s3",
+    "build": "pnpm run build:lambda && cdk synth",
+    "deploy": "pnpm run build && cdk deploy",
+    "destroy": "cdk destroy",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
