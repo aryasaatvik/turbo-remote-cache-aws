@@ -2,6 +2,8 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import * as cdk from 'aws-cdk-lib';
 import { Construct } from "constructs";
 import { LambdaFunctions } from './lambda';
 import { getArtifactIntegration } from './get-artifact';
@@ -23,6 +25,12 @@ export class APIGateway extends Construct {
       restApiName: 'Turbo Remote Cache API',
       description: 'API for Turborepo Remote Cache',
       cloudWatchRole: true,
+      domainName: {
+        domainName: 'turbo-remote-cache.arya.sh',
+        certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'arn:aws:acm:us-east-1:654654387918:certificate/458b8937-86f4-4c1d-86bb-d43b5e6d20c0'),
+        endpointType: apigateway.EndpointType.EDGE,
+        securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+      },
       deployOptions: {
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
@@ -90,5 +98,10 @@ export class APIGateway extends Construct {
 
     // GET /v2/user
     userResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.getUserInfoFunction));
+
+    // cloudfront domain name for CNAME
+    new cdk.CfnOutput(this, 'CloudfrontAliasDomainName', {
+      value: api.domainName?.domainNameAliasDomainName ?? 'N/A',
+    });
   }
 }

@@ -18,6 +18,7 @@ export class TurboRemoteCache extends Construct {
 
     const artifactsBucket = new s3.Bucket(this, 'ArtifactsBucket', {
       versioned: false,
+      bucketName: 'turbo-remote-cache-artifacts',
       encryption: s3.BucketEncryption.S3_MANAGED,
       lifecycleRules: [
         {
