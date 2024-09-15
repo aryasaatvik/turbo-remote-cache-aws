@@ -38,6 +38,7 @@ export class TurboRemoteCache extends Construct {
     artifactsBucket.grantReadWrite(s3Credentials);
 
     const eventsTable = new dynamodb.Table(this, 'EventsTable', {
+      tableName: 'turbo-remote-cache-events',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PROVISIONED,
       readCapacity: 5,
