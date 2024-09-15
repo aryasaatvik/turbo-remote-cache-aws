@@ -1,5 +1,6 @@
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
 import { LambdaFunctions } from './lambda';
@@ -36,8 +37,17 @@ export class TurboRemoteCache extends Construct {
 
     artifactsBucket.grantReadWrite(s3Credentials);
 
+    const eventsTable = new dynamodb.Table(this, 'EventsTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PROVISIONED,
+      readCapacity: 5,
+      writeCapacity: 5,
+      timeToLiveAttribute: 'ttl',
+    });
+
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
       artifactsBucket,
+      eventsTable,
     });
 
     const api = new APIGateway(this, 'APIGateway', {
