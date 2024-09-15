@@ -1,80 +1,67 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
-import { S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { APIGatewayProxyHandler } from "aws-lambda";
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION });
-
-interface ArtifactInfo {
-  size: number;
-  taskDurationMs: number;
-  tag?: string;
-}
-
-interface ArtifactQueryResult {
-  [hash: string]: ArtifactInfo | { error: { message: string } };
-}
+const dynamoDb = new DynamoDBClient({});
+const TABLE_NAME = process.env.EVENTS_TABLE_NAME;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  if (!event.body) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "No body provided" }),
+    };
+  }
+
+  const { hashes } = JSON.parse(event.body);
+
+  if (!Array.isArray(hashes)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "Invalid request body, expected an array of hashes" }),
+    };
+  }
+
   try {
-    const bucketName = process.env.BUCKET_NAME;
-    if (!bucketName) {
-      throw new Error('BUCKET_NAME environment variable is not set');
-    }
+    const result: Record<string, any> = {};
 
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Missing request body' }),
-      };
-    }
+    for (const hash of hashes) {
+      const queryResult = await dynamoDb.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression: "#artifactHash = :hash",
+          ExpressionAttributeNames: {
+            "#artifactHash": "hash",
+          },
+          ExpressionAttributeValues: {
+            ":hash": { S: hash },
+          },
+          Limit: 1,
+          ScanIndexForward: false, // to get the most recent event
+        })
+      );
 
-    const { hashes }: { hashes: string[] } = JSON.parse(event.body);
-
-    if (!Array.isArray(hashes) || hashes.length === 0) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Invalid request body format' }),
-      };
-    }
-
-    const result: ArtifactQueryResult = {};
-
-    await Promise.all(hashes.map(async (hash) => {
-      const key = `artifacts/${hash}`;
-      try {
-        const headResult = await s3Client.send(new HeadObjectCommand({
-          Bucket: bucketName,
-          Key: key,
-        }));
-
+      if (queryResult.Items && queryResult.Items.length > 0) {
+        const item = unmarshall(queryResult.Items[0]);
         result[hash] = {
-          size: headResult.ContentLength || 0,
-          taskDurationMs: parseInt(headResult.Metadata?.['artifact-duration'] || '0', 10),
-          tag: headResult.Metadata?.['artifact-tag'],
+          size: item.size,
+          taskDurationMs: item.duration,
+          tag: item.tag,
         };
-      } catch (error: any) {
-        if (error.code === 'NotFound') {
-          result[hash] = { error: { message: 'Artifact not found' } };
-        } else {
-          throw error;
-        }
+      } else {
+        result[hash] = null;
       }
-    }));
+    }
 
     return {
       statusCode: 200,
       body: JSON.stringify(result),
-      headers: {
-        'Content-Type': 'application/json',
-      },
     };
-  } catch (error: any) {
-    console.error('Error querying artifacts:', error);
+  } catch (error) {
+    console.error("Error querying artifacts:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      body: JSON.stringify({ message: "Error querying artifacts" }),
     };
   }
 };
