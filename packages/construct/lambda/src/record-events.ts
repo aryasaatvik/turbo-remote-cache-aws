@@ -1,58 +1,61 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
+import { APIGatewayProxyHandler } from "aws-lambda";
 
-interface CacheEvent {
-  sessionId: string;
-  source: 'LOCAL' | 'REMOTE';
-  event: 'HIT' | 'MISS';
-  hash: string;
-  duration?: number;
-}
+const dynamoDb = new DynamoDBClient({});
+const TABLE_NAME = process.env.EVENTS_TABLE_NAME;
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION });
+export const handler: APIGatewayProxyHandler = async (event, context) => {
+  if (!event.body) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "No body provided" }),
+    };
+  }
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+  const events = JSON.parse(event.body);
+
+  if (!Array.isArray(events)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "Invalid request body, expected an array of events" }),
+    };
+  }
+
   try {
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Missing request body' }),
+    for (const eventData of events) {
+      const { sessionId, source, hash, event, duration } = eventData;
+      const timestamp = new Date().toISOString();
+      const id = context.awsRequestId;
+
+      const item = {
+        id,
+        timestamp,
+        sessionId,
+        source,
+        hash,
+        event,
+        duration,
+        ttl: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days from now
       };
+
+      await dynamoDb.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          Item: marshall(item),
+        })
+      );
     }
-
-    const cacheEvents: CacheEvent[] = JSON.parse(event.body);
-
-    if (!Array.isArray(cacheEvents) || cacheEvents.length === 0) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Invalid request body format' }),
-      };
-    }
-
-    const bucketName = process.env.BUCKET_NAME;
-    if (!bucketName) {
-      throw new Error('BUCKET_NAME environment variable is not set');
-    }
-
-    const timestamp = new Date().toISOString();
-    const key = `events/${timestamp}-${Math.random().toString(36).substring(2, 15)}.json`;
-
-    await s3Client.send(new PutObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-      Body: JSON.stringify(cacheEvents),
-      ContentType: 'application/json',
-    }));
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Events recorded successfully' }),
+      body: JSON.stringify({ message: "Events recorded successfully" }),
     };
   } catch (error) {
-    console.error('Error recording events:', error);
+    console.error("Error recording events:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' }),
+      body: JSON.stringify({ message: "Error recording events" }),
     };
   }
 };
