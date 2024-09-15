@@ -22,8 +22,8 @@ export class LambdaFunctions extends Construct {
 
     this.recordEventsFunction = new lambda.Function(this, 'RecordEventsFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'record-events.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/record-events')),
       environment: {
         EVENTS_TABLE_NAME: props.eventsTable.tableName,
       },
@@ -31,8 +31,8 @@ export class LambdaFunctions extends Construct {
 
     this.artifactQueryFunction = new lambda.Function(this, 'ArtifactQueryFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'artifact-query.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/artifact-query')),
       environment: {
         EVENTS_TABLE_NAME: props.eventsTable.tableName,
       },
@@ -40,8 +40,8 @@ export class LambdaFunctions extends Construct {
 
     this.statusFunction = new lambda.Function(this, 'StatusFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'status.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/status')),
       environment: {
         BUCKET_NAME: props.artifactsBucket.bucketName,
       },
@@ -50,8 +50,8 @@ export class LambdaFunctions extends Construct {
     // turbo login
     this.initiateLoginFunction = new lambda.Function(this, 'InitiateLoginFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'initiate-login.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/initiate-login')),
       environment: {
         TURBO_TOKEN: process.env.TURBO_TOKEN!,
       },
@@ -59,8 +59,8 @@ export class LambdaFunctions extends Construct {
 
     this.loginSuccessFunction = new lambda.Function(this, 'LoginSuccessFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'login-success.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/login-success')),
       environment: {
         TURBO_TOKEN: process.env.TURBO_TOKEN!,
       },
@@ -68,8 +68,8 @@ export class LambdaFunctions extends Construct {
 
     this.getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'get-user-info.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '..', 'lambda', 'dist')),
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/get-user-info')),
     });
 
     props.artifactsBucket.grantRead(this.artifactQueryFunction);
