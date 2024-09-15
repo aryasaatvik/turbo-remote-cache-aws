@@ -26,14 +26,12 @@ export const handler: APIGatewayProxyHandler = async (event, context) => {
     for (const eventData of events) {
       const { sessionId, source, hash, event, duration } = eventData;
       const timestamp = new Date().toISOString();
-      const id = context.awsRequestId;
 
       const item = {
-        id,
-        timestamp,
-        sessionId,
-        source,
         hash,
+        sessionId,
+        timestamp,
+        source,
         event,
         duration,
         ttl: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days from now
