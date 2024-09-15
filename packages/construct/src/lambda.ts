@@ -22,6 +22,7 @@ export class LambdaFunctions extends Construct {
 
     this.recordEventsFunction = new lambda.Function(this, 'RecordEventsFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
+      functionName: 'turbo-remote-cache-record-events',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/record-events')),
       environment: {
@@ -31,6 +32,7 @@ export class LambdaFunctions extends Construct {
 
     this.artifactQueryFunction = new lambda.Function(this, 'ArtifactQueryFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
+      functionName: 'turbo-remote-cache-artifact-query',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/artifact-query')),
       environment: {
@@ -40,6 +42,7 @@ export class LambdaFunctions extends Construct {
 
     this.statusFunction = new lambda.Function(this, 'StatusFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
+      functionName: 'turbo-remote-cache-status',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/status')),
       environment: {
@@ -50,6 +53,7 @@ export class LambdaFunctions extends Construct {
     // turbo login
     this.initiateLoginFunction = new lambda.Function(this, 'InitiateLoginFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
+      functionName: 'turbo-remote-cache-initiate-login',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/initiate-login')),
       environment: {
@@ -59,6 +63,7 @@ export class LambdaFunctions extends Construct {
 
     this.loginSuccessFunction = new lambda.Function(this, 'LoginSuccessFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
+      functionName: 'turbo-remote-cache-login-success',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/login-success')),
       environment: {
@@ -68,6 +73,7 @@ export class LambdaFunctions extends Construct {
 
     this.getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
+      functionName: 'turbo-remote-cache-get-user-info',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/get-user-info')),
     });
