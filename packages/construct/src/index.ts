@@ -39,7 +39,8 @@ export class TurboRemoteCache extends Construct {
 
     const eventsTable = new dynamodb.Table(this, 'EventsTable', {
       tableName: 'turbo-remote-cache-events',
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'hash', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'sessionId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PROVISIONED,
       readCapacity: 5,
       writeCapacity: 5,
