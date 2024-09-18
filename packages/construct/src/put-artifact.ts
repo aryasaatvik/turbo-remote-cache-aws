@@ -51,6 +51,7 @@ export function putArtifactIntegration(scope: Construct, props: PutArtifactInteg
   });
 
   props.hashResource.addMethod('PUT', putIntegration, {
+    operationName: 'uploadArtifact',
     requestParameters: {
       'method.request.path.hash': true,
       'method.request.header.Content-Length': true,
@@ -90,5 +91,21 @@ export function putArtifactIntegration(scope: Construct, props: PutArtifactInteg
         },
       },
     ],
+  });
+
+  const putArtifactDocumentationPart = {
+    description: 'Uploads a cache artifact identified by the `hash` specified on the path. The cache artifact can then be downloaded with the provided `hash`.',
+    summary: 'Upload a cache artifact',
+    tags: ['artifacts'],
+  }
+
+  new apigateway.CfnDocumentationPart(scope, 'PutArtifactDocumentationPart', {
+    location: {
+      type: 'METHOD',
+      method: 'PUT',
+      path: '/v8/artifacts/{hash}',
+    },
+    properties: JSON.stringify(putArtifactDocumentationPart),
+    restApiId: props.api.restApiId,
   });
 }

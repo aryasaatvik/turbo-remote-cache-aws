@@ -1,9 +1,12 @@
 {
-  "name": "@turbo-remote-cache/construct",
-  "version": "0.0.0",
-  "private": true,
+  "name": "turbo-remote-cache-construct",
+  "version": "0.1.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*",
+    "lambda/dist/**/*"
+  ],
   "scripts": {
     "build:lambda": "tsc -p lambda/tsconfig.json && esbuild lambda/src/**/*.ts --bundle --format=esm --platform=node --target=node20 --outdir=lambda/dist --out-extension:.js=.mjs --minify --external:@aws-sdk/*",
     "build": "pnpm run build:lambda && tsc",

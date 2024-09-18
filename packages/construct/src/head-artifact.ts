@@ -39,6 +39,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
   });
 
   props.hashResource.addMethod('HEAD', headIntegration, {
+    operationName: 'artifactExists',
     requestParameters: {
       'method.request.path.hash': true,
     },
@@ -56,5 +57,21 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
         statusCode: '404',
       },
     ],
+  });
+
+  const headArtifactDocumentationPart = {
+    description: 'Check that a cache artifact with the given `hash` exists. This request returns response headers only and is equivalent to a `GET` request to this endpoint where the response contains no body.',
+    summary: 'Check if a cache artifact exists',
+    tags: ['artifacts'],
+  }
+
+  new apigateway.CfnDocumentationPart(scope, 'HeadArtifactDocumentationPart', {
+    location: {
+      type: 'METHOD',
+      method: 'HEAD',
+      path: '/v8/artifacts/{hash}',
+    },
+    properties: JSON.stringify(headArtifactDocumentationPart),
+    restApiId: props.api.restApiId,
   });
 }

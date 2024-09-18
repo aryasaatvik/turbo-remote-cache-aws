@@ -7,8 +7,12 @@ import { LambdaFunctions } from './lambda';
 import { APIGateway } from './api';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 export interface TurboRemoteCacheProps {
+  /**
+   * domain name options for API Gateway
+   */
+  domainNameOptions?: apigateway.DomainNameOptions
 }
 
 export class TurboRemoteCache extends Construct {
@@ -26,6 +30,7 @@ export class TurboRemoteCache extends Construct {
           expiration: cdk.Duration.days(30),
         },
       ],
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     const s3Credentials = new iam.Role(this, 'S3CredentialsRole', {
@@ -45,6 +50,7 @@ export class TurboRemoteCache extends Construct {
       readCapacity: 5,
       writeCapacity: 5,
       timeToLiveAttribute: 'ttl',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
@@ -53,6 +59,7 @@ export class TurboRemoteCache extends Construct {
     });
 
     const api = new APIGateway(this, 'APIGateway', {
+      domainNameOptions: props.domainNameOptions,
       lambdaFunctions,
       artifactsBucket,
       s3Credentials,
