@@ -85,7 +85,7 @@ export function getArtifactIntegration(scope: Construct, props: GetArtifactInteg
     tags: ['artifacts'],
   }
 
-  new apigateway.CfnDocumentationPart(scope, 'DocumentationPart', {
+  new apigateway.CfnDocumentationPart(scope, 'GetArtifactDocumentationPart', {
     location: {
       type: 'METHOD',
       method: 'GET',

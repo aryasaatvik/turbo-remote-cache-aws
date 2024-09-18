@@ -87,7 +87,7 @@ export class APIGateway extends Construct {
       tags: ['artifacts'],
     }
 
-    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+    new apigateway.CfnDocumentationPart(this, 'ArtifactsEventsDocumentationPart', {
       location: {
         type: 'METHOD',
         method: 'POST',
@@ -127,7 +127,7 @@ export class APIGateway extends Construct {
       tags: ['artifacts'],
     }
 
-    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+    new apigateway.CfnDocumentationPart(this, 'ArtifactsStatusDocumentationPart', {
       location: {
         type: 'METHOD',
         method: 'GET',
@@ -194,7 +194,7 @@ export class APIGateway extends Construct {
       tags: ['artifacts'],
     }
 
-    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+    new apigateway.CfnDocumentationPart(this, 'ArtifactsQueryDocumentationPart', {
       location: {
         type: 'METHOD',
         method: 'POST',
@@ -219,7 +219,7 @@ export class APIGateway extends Construct {
       tags: ['login'],
     }
 
-    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+    new apigateway.CfnDocumentationPart(this, 'TurborepoInitiateLoginDocumentationPart', {
       location: {
         type: 'METHOD',
         method: 'GET',
@@ -241,7 +241,7 @@ export class APIGateway extends Construct {
       tags: ['login'],
     }
 
-    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+    new apigateway.CfnDocumentationPart(this, 'TurborepoLoginSuccessDocumentationPart', {
       location: {
         type: 'METHOD',
         method: 'GET',
@@ -266,7 +266,7 @@ export class APIGateway extends Construct {
       tags: ['login'],
     }
 
-    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+    new apigateway.CfnDocumentationPart(this, 'TurborepoUserInfoDocumentationPart', {
       location: {
         type: 'METHOD',
         method: 'GET',

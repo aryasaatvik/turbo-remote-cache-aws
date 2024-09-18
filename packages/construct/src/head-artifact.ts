@@ -65,7 +65,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
     tags: ['artifacts'],
   }
 
-  new apigateway.CfnDocumentationPart(scope, 'DocumentationPart', {
+  new apigateway.CfnDocumentationPart(scope, 'HeadArtifactDocumentationPart', {
     location: {
       type: 'METHOD',
       method: 'HEAD',

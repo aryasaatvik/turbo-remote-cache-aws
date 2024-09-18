@@ -99,7 +99,7 @@ export function putArtifactIntegration(scope: Construct, props: PutArtifactInteg
     tags: ['artifacts'],
   }
 
-  new apigateway.CfnDocumentationPart(scope, 'DocumentationPart', {
+  new apigateway.CfnDocumentationPart(scope, 'PutArtifactDocumentationPart', {
     location: {
       type: 'METHOD',
       method: 'PUT',
