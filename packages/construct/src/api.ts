@@ -32,6 +32,7 @@ export class APIGateway extends Construct {
         securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
       },
       deployOptions: {
+        documentationVersion: '8.0.0',
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
         accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
@@ -39,6 +40,11 @@ export class APIGateway extends Construct {
         tracingEnabled: true,
       },
       binaryMediaTypes: ['application/octet-stream'],
+    });
+
+    new apigateway.CfnDocumentationVersion(this, 'DocumentationVersion', {
+      documentationVersion: '8.0.0',
+      restApiId: api.restApiId,
     });
 
     const v8Resource = api.root.addResource('v8');
@@ -75,8 +81,21 @@ export class APIGateway extends Construct {
       },
     });
 
-    // const cfnMethod = eventsResource.node.findChild('POST') as apigateway.CfnMethod
-    // cfnMethod.addPropertyOverride('Description', 'Records an artifacts cache usage event. The body of this request is an array of cache usage events. The supported event types are `HIT` and `MISS`. The source is either `LOCAL` the cache event was on the users filesystem cache or `REMOTE` if the cache event is for a remote cache. When the event is a `HIT` the request also accepts a number `duration` which is the time taken to generate the artifact in the cache.')
+    const recordEventDocumentationPart = {
+      description: 'Records an artifacts cache usage event. The body of this request is an array of cache usage events. The supported event types are `HIT` and `MISS`. The source is either `LOCAL` the cache event was on the users filesystem cache or `REMOTE` if the cache event is for a remote cache. When the event is a `HIT` the request also accepts a number `duration` which is the time taken to generate the artifact in the cache.',
+      summary: 'Record an artifacts cache usage event',
+      tags: ['artifacts'],
+    }
+
+    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+      location: {
+        type: 'METHOD',
+        method: 'POST',
+        path: '/v8/artifacts/events',
+      },
+      properties: JSON.stringify(recordEventDocumentationPart),
+      restApiId: api.restApiId,
+    });
 
     const statusResource = artifactsResource.addResource('status');
     statusResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.statusFunction), {
@@ -102,11 +121,25 @@ export class APIGateway extends Construct {
       ],
     });
 
+    const statusDocumentationPart = {
+      description: 'Check the status of Remote Caching for this principal. Returns a JSON-encoded status indicating if Remote Caching is enabled, disabled, or disabled due to usage limits.',
+      summary: 'Get status of Remote Caching for this principal',
+      tags: ['artifacts'],
+    }
+
+    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+      location: {
+        type: 'METHOD',
+        method: 'GET',
+        path: '/v8/artifacts/status',
+      },
+      properties: JSON.stringify(statusDocumentationPart),
+      restApiId: api.restApiId,
+    });
+
     const hashResource = artifactsResource.addResource('{hash}');
 
     // GET /v8/artifacts/{hash}
-    // Downloads a cache artifact identified by its `hash`. The artifact is downloaded as an octet-stream.
-    // The client should verify the content-length header and response body.
     getArtifactIntegration(this, {
       artifactsBucket: props.artifactsBucket,
       s3Credentials: props.s3Credentials,
@@ -155,6 +188,22 @@ export class APIGateway extends Construct {
       },
     });
 
+    const artifactQueryDocumentationPart = {
+      description: 'Query information about an array of artifacts.',
+      summary: 'Query information about an artifact',
+      tags: ['artifacts'],
+    }
+
+    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+      location: {
+        type: 'METHOD',
+        method: 'POST',
+        path: '/v8/artifacts',
+      },
+      properties: JSON.stringify(artifactQueryDocumentationPart),
+      restApiId: api.restApiId,
+    });
+
     // turbo login
     const turborepoResource = api.root.addResource('turborepo');
     const tokenResource = turborepoResource.addResource('token');
@@ -164,10 +213,42 @@ export class APIGateway extends Construct {
       operationName: 'initiateLogin',
     });
 
+    const initiateLoginDocumentationPart = {
+      description: 'Initiates a login process for Turborepo.',
+      summary: 'Initiate login',
+      tags: ['login'],
+    }
+
+    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+      location: {
+        type: 'METHOD',
+        method: 'GET',
+        path: '/v8/turborepo/token',
+      },
+      properties: JSON.stringify(initiateLoginDocumentationPart),
+      restApiId: api.restApiId,
+    });
+
     // GET /v8/turborepo/success
     const successResource = turborepoResource.addResource('success');
     successResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.loginSuccessFunction), {
       operationName: 'loginSuccess',
+    });
+
+    const loginSuccessDocumentationPart = {
+      description: 'Handles the success of a login process for Turborepo.',
+      summary: 'Login success',
+      tags: ['login'],
+    }
+
+    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+      location: {
+        type: 'METHOD',
+        method: 'GET',
+        path: '/v8/turborepo/success',
+      },
+      properties: JSON.stringify(loginSuccessDocumentationPart),
+      restApiId: api.restApiId,
     });
 
     const v2Resource = api.root.addResource('v2');
@@ -177,6 +258,22 @@ export class APIGateway extends Construct {
     // GET /v2/user
     userResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.getUserInfoFunction), {
       operationName: 'getUserInfo',
+    });
+
+    const getUserInfoDocumentationPart = {
+      description: 'Retrieves information about the authenticated user.',
+      summary: 'Get user info',
+      tags: ['login'],
+    }
+
+    new apigateway.CfnDocumentationPart(this, 'DocumentationPart', {
+      location: {
+        type: 'METHOD',
+        method: 'GET',
+        path: '/v2/user',
+      },
+      properties: JSON.stringify(getUserInfoDocumentationPart),
+      restApiId: api.restApiId,
     });
 
     // cloudfront domain name for CNAME

@@ -17,64 +17,81 @@ export function getArtifactIntegration(scope: Construct, props: GetArtifactInteg
     path: `${props.artifactsBucket.bucketName}/artifacts/{hash}`,
     options: {
       credentialsRole: props.s3Credentials,
-    integrationResponses: [
+      integrationResponses: [
+        {
+          statusCode: '200',
+          responseParameters: {
+            'method.response.header.Content-Type': 'integration.response.header.Content-Type',
+          },
+          contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
+        },
+        {
+          selectionPattern: '404',
+          statusCode: '404',
+          responseTemplates: {
+            'application/json': JSON.stringify({
+              message: 'Object not found',
+              error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
+            }),
+          },
+        },
+        {
+          selectionPattern: '5\\d{2}',
+          statusCode: '500',
+          responseTemplates: {
+            'application/json': JSON.stringify({
+              message: 'Internal server error',
+              error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
+            }),
+          },
+        },
+      ],
+      requestParameters: {
+        'integration.request.path.hash': 'method.request.path.hash',
+      },
+    },
+  });
+
+  props.hashResource.addMethod('GET', getIntegration, {
+    operationName: 'downloadArtifact',
+    requestParameters: {
+      'method.request.path.hash': true,
+    },
+    methodResponses: [
       {
         statusCode: '200',
         responseParameters: {
-          'method.response.header.Content-Type': 'integration.response.header.Content-Type',
+          'method.response.header.Content-Type': true,
         },
-        contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
       },
       {
-        selectionPattern: '404',
         statusCode: '404',
-        responseTemplates: {
-          'application/json': JSON.stringify({
-            message: 'Object not found',
-            error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
-          }),
+        responseModels: {
+          'application/json': apigateway.Model.ERROR_MODEL,
         },
       },
       {
-        selectionPattern: '5\\d{2}',
         statusCode: '500',
-        responseTemplates: {
-          'application/json': JSON.stringify({
-            message: 'Internal server error',
-            error: "$util.escapeJavaScript($input.path('$.errorMessage'))"
-          }),
+        responseModels: {
+          'application/json': apigateway.Model.ERROR_MODEL,
         },
       },
     ],
-    requestParameters: {
-      'integration.request.path.hash': 'method.request.path.hash',
-    },
-  },
-});
+  });
 
-  props.hashResource.addMethod('GET', getIntegration, {
-    requestParameters: {
-      'method.request.path.hash': true,
-  },
-  methodResponses: [
-    {
-      statusCode: '200',
-      responseParameters: {
-        'method.response.header.Content-Type': true,
-      },
+  const getArtifactDocumentationPart = {
+    description: 'Downloads a cache artifact indentified by its `hash` specified on the request path. The artifact is downloaded as an octet-stream. The client should verify the content-length header and response body.',
+    summary: 'Download a cache artifact',
+    tags: ['artifacts'],
+  }
+
+  new apigateway.CfnDocumentationPart(scope, 'DocumentationPart', {
+    location: {
+      type: 'METHOD',
+      method: 'GET',
+      path: '/v8/artifacts/{hash}',
     },
-    {
-      statusCode: '404',
-      responseModels: {
-        'application/json': apigateway.Model.ERROR_MODEL,
-      },
-    },
-    {
-      statusCode: '500',
-      responseModels: {
-        'application/json': apigateway.Model.ERROR_MODEL,
-      },
-    },
-  ],
+    properties: JSON.stringify(getArtifactDocumentationPart),
+    restApiId: props.api.restApiId,
   });
 }
