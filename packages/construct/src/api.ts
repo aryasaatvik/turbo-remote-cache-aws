@@ -11,6 +11,7 @@ import { headArtifactIntegration } from './head-artifact';
 import { putArtifactIntegration } from './put-artifact';
 
 interface APIGatewayProps {
+  domainNameOptions?: apigateway.DomainNameOptions;
   lambdaFunctions: LambdaFunctions;
   artifactsBucket: s3.Bucket;
   s3Credentials: iam.Role;
@@ -25,12 +26,7 @@ export class APIGateway extends Construct {
       restApiName: 'Turborepo Remote Cache API',
       description: 'Turborepo is an intelligent build system optimized for JavaScript and TypeScript codebases.',
       cloudWatchRole: true,
-      domainName: {
-        domainName: 'turbo-remote-cache.arya.sh',
-        certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'arn:aws:acm:us-east-1:654654387918:certificate/458b8937-86f4-4c1d-86bb-d43b5e6d20c0'),
-        endpointType: apigateway.EndpointType.EDGE,
-        securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
-      },
+      domainName: props.domainNameOptions,
       deployOptions: {
         documentationVersion: '8.0.0',
         loggingLevel: apigateway.MethodLoggingLevel.INFO,

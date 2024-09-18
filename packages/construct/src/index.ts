@@ -7,8 +7,12 @@ import { LambdaFunctions } from './lambda';
 import { APIGateway } from './api';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 export interface TurboRemoteCacheProps {
+  /**
+   * domain name options for API Gateway
+   */
+  domainNameOptions?: apigateway.DomainNameOptions
 }
 
 export class TurboRemoteCache extends Construct {
@@ -55,6 +59,7 @@ export class TurboRemoteCache extends Construct {
     });
 
     const api = new APIGateway(this, 'APIGateway', {
+      domainNameOptions: props.domainNameOptions,
       lambdaFunctions,
       artifactsBucket,
       s3Credentials,
