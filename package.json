@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "scripts": {
   },
+  "types": "./lib/index.d.ts",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
     "@types/jest": "^29.5.12",
