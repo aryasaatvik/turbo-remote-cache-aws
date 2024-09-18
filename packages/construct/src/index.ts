@@ -26,6 +26,7 @@ export class TurboRemoteCache extends Construct {
           expiration: cdk.Duration.days(30),
         },
       ],
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     const s3Credentials = new iam.Role(this, 'S3CredentialsRole', {
@@ -45,6 +46,7 @@ export class TurboRemoteCache extends Construct {
       readCapacity: 5,
       writeCapacity: 5,
       timeToLiveAttribute: 'ttl',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
