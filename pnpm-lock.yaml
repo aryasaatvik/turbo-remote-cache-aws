@@ -112,9 +112,6 @@ importers:
       '@aws-sdk/util-dynamodb':
         specifier: ^3.645.0
         version: 3.651.1(@aws-sdk/client-dynamodb@3.651.1)
-      uuid:
-        specifier: ^10.0.0
-        version: 10.0.0
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.145
@@ -125,9 +122,6 @@ importers:
       '@types/node':
         specifier: 20.14.9
         version: 20.14.9
-      '@types/uuid':
-        specifier: ^10.0.0
-        version: 10.0.0
       aws-cdk-lib:
         specifier: ^2.156.0
         version: 2.156.0(constructs@10.3.0)
@@ -1247,9 +1241,6 @@ packages:
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
 
-  '@types/uuid@10.0.0':
-    resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
-
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
 
@@ -2299,10 +2290,6 @@ packages:
 
   util@0.12.5:
     resolution: {integrity: sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA==}
-
-  uuid@10.0.0:
-    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
-    hasBin: true
 
   uuid@8.0.0:
     resolution: {integrity: sha512-jOXGuXZAWdsTH7eZLtyXMqUb9EcWMGZNbL9YcGBJl4MH4nrxHmZJhEHvyLFrkxo+28uLb/NYRcStH48fnD0Vzw==}
@@ -4360,8 +4347,6 @@ snapshots:
 
   '@types/stack-utils@2.0.3': {}
 
-  '@types/uuid@10.0.0': {}
-
   '@types/yargs-parser@21.0.3': {}
 
   '@types/yargs@17.0.33':
@@ -5549,8 +5534,6 @@ snapshots:
       is-generator-function: 1.0.10
       is-typed-array: 1.1.13
       which-typed-array: 1.1.15
-
-  uuid@10.0.0: {}
 
   uuid@8.0.0: {}
 
