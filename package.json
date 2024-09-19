@@ -1,5 +1,5 @@
 {
-  "name": "turbo-remote-cache-construct",
+  "name": "turbo-remote-cache",
   "version": "0.1.0",
   "scripts": {},
   "types": "./lib/index.d.ts",

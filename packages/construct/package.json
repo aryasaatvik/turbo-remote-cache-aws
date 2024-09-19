@@ -13,6 +13,11 @@
     "test": "jest",
     "watch": "tsc -w"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aryasaatvik/turbo-remote-cache-aws.git",
+    "directory": "packages/construct"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.645.0",
     "@aws-sdk/client-s3": "^3.645.0",
