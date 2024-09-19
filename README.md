@@ -1,5 +1,8 @@
 # Turborepo Remote Cache API
 
+![GitHub License](https://img.shields.io/github/license/aryasaatvik/turbo-remote-cache-aws)
+![Version](https://img.shields.io/badge/version-0.1.2-blue)
+
 This project implements a Remote Cache API for Turborepo using AWS services. It provides a scalable and efficient solution for storing and retrieving build artifacts in a distributed development environment.
 
 ## Table of Contents
