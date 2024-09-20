@@ -5,6 +5,17 @@
 
 An AWS CDK construct for easily deploying a Turborepo Remote Cache API infrastructure. This project implements a Remote Cache API for Turborepo using AWS services. It provides a scalable and efficient solution for storing and retrieving build artifacts in a distributed development environment.
 
+## Features
+
+:zap: High-performance S3 integration for artifact storage
+:lock: Secure authentication using API keys
+:chart_with_upwards_trend: Scalable architecture using serverless AWS services
+:globe_with_meridians: Optional custom domain support
+:gear: Easy integration with existing CDK stacks
+:moneybag: Cost-effective usage-based pricing model
+:recycle: Automatic artifact cleanup to manage storage costs
+:clock1: Significant build time reduction for large projects
+
 ## Why use Remote Caching?
 
 The Turborepo Remote Cache API allows teams to share and reuse build artifacts across different machines and CI/CD pipelines, significantly reducing build times and improving development efficiency. [Read more about Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
