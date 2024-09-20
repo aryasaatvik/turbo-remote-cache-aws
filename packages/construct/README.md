@@ -1,6 +1,13 @@
 # Turborepo Remote Cache API Construct
 
-An AWS CDK construct for easily deploying a Turborepo Remote Cache API infrastructure.
+![GitHub License](https://img.shields.io/github/license/aryasaatvik/turbo-remote-cache-aws)
+![Version](https://img.shields.io/badge/version-0.1.2-blue)
+
+An AWS CDK construct for easily deploying a Turborepo Remote Cache API infrastructure. This project implements a Remote Cache API for Turborepo using AWS services. It provides a scalable and efficient solution for storing and retrieving build artifacts in a distributed development environment.
+
+## Why use Remote Caching?
+
+The Turborepo Remote Cache API allows teams to share and reuse build artifacts across different machines and CI/CD pipelines, significantly reducing build times and improving development efficiency. [Read more about Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
 
 ## Installation
 
@@ -45,7 +52,7 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 
 ## Architecture
 
-The construct uses API Gateway, Lambda, S3 integration, and DynamoDB to create a serverless Turborepo Remote Cache REST API. The construct can be self-hosted in your AWS account and be used with the [Turborepo Remote Cache](https://turbo.build/repo/docs/core-concepts/remote-caching).
+The construct uses API Gateway, Lambda, S3 integration, and DynamoDB to create a serverless Turborepo Remote Cache REST API. The construct can be self-hosted in your AWS account and be used with the [Turborepo Remote Cache](https://turbo.build/repo/docs/core-concepts/remote-caching#self-hosting).
 
 ### Components
 
