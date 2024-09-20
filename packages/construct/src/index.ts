@@ -100,7 +100,7 @@ export class TurboRemoteCache extends Construct {
       lambdaFunctions,
       artifactsBucket,
       s3Credentials,
-      ...props.apiProps,
+      apiProps: props.apiProps,
     });
   }
 }
