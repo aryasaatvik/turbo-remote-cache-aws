@@ -49,18 +49,32 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     super(scope, id, props);
 
     new TurboRemoteCache(this, 'TurboRemoteCache', {
-      // optional domain name options for using a custom domain with API Gateway
-      domainNameOptions: {
-        domainName: 'your-custom-domain.com',
-        // create a certificate in us-east-1 for custom domain
-        certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'YOUR_CERTIFICATE_ARN'),
-        endpointType: apigateway.EndpointType.EDGE,
-        securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+      apiProps: {
+        // optional domain name options for using a custom domain with API Gateway
+        domainName: {
+          domainName: 'your-custom-domain.com',
+          // create a certificate in us-east-1 for custom domain
+          certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012'),
+          endpointType: apigateway.EndpointType.EDGE,
+          securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+        },
+      },
+      // optional S3 bucket props for to configure the artifacts bucket
+      artifactsBucketProps: {
+        bucketName: 'turbo-remote-cache-artifacts',
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+      },
+      // optional DynamoDB table props for to configure the events table
+      eventsTableProps: {
+        tableName: 'turbo-remote-cache-events',
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
       },
     });
   }
 }
 ```
+
+The S3 bucket, DynamoDB table, and API Gateway can be configured using the optional props. The defaults are are provided in the jsdoc comments and can be viewed in the [source code](./src/index.ts). The example above uses apiProps to configure a custom domain name for the API Gateway. It also uses artifactsBucketProps to customize the bucketName and removalPolicy to retain the bucket when the stack is deleted. Similar options are available for the DynamoDB table.
 
 ## Architecture
 

@@ -2,7 +2,6 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from "constructs";
 import { LambdaFunctions } from './lambda';
@@ -11,7 +10,7 @@ import { headArtifactIntegration } from './head-artifact';
 import { putArtifactIntegration } from './put-artifact';
 
 interface APIGatewayProps {
-  domainNameOptions?: apigateway.DomainNameOptions;
+  apiProps?: apigateway.RestApiProps;
   lambdaFunctions: LambdaFunctions;
   artifactsBucket: s3.Bucket;
   s3Credentials: iam.Role;
@@ -26,7 +25,6 @@ export class APIGateway extends Construct {
       restApiName: 'Turborepo Remote Cache API',
       description: 'Turborepo is an intelligent build system optimized for JavaScript and TypeScript codebases.',
       cloudWatchRole: true,
-      domainName: props.domainNameOptions,
       deployOptions: {
         documentationVersion: '8.0.0',
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
@@ -36,6 +34,7 @@ export class APIGateway extends Construct {
         tracingEnabled: true,
       },
       binaryMediaTypes: ['application/octet-stream'],
+      ...props.apiProps,
     });
 
     new apigateway.CfnDocumentationVersion(this, 'DocumentationVersion', {
