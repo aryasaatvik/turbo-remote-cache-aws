@@ -25,7 +25,7 @@ export interface TurboRemoteCacheProps {
    *  },
    *  binaryMediaTypes: ['application/octet-stream'],
    */
-  apiProps?: apigateway.RestApiProps,
+  apiProps?: Partial<apigateway.RestApiProps>,
   /**
    * S3 bucket props for the artifacts bucket
    * @default
@@ -37,7 +37,7 @@ export interface TurboRemoteCacheProps {
    *  ],
    *  removalPolicy: cdk.RemovalPolicy.DESTROY,
    */
-  artifactsBucketProps?: s3.BucketProps,
+  artifactsBucketProps?: Partial<s3.BucketProps>,
   /**
    * DynamoDB table props for the events table
    * @default
@@ -48,7 +48,7 @@ export interface TurboRemoteCacheProps {
    *  timeToLiveAttribute: 'ttl',
    *  removalPolicy: cdk.RemovalPolicy.DESTROY,
    */
-  eventsTableProps?: dynamodb.TableProps
+  eventsTableProps?: Partial<dynamodb.TableProps>
 }
 
 export class TurboRemoteCache extends Construct {

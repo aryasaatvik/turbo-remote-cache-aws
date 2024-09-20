@@ -17,6 +17,14 @@ export class TurboRemoteCacheStack extends cdk.Stack {
           securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
         },
       },
+      artifactsBucketProps: {
+        bucketName: 'turbo-remote-cache-artifacts',
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+      },
+      eventsTableProps: {
+        tableName: 'turbo-remote-cache-events',
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+      },
     });
   }
 }
