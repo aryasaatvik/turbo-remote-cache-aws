@@ -49,13 +49,15 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     super(scope, id, props);
 
     new TurboRemoteCache(this, 'TurboRemoteCache', {
-      // optional domain name options for using a custom domain with API Gateway
-      domainNameOptions: {
-        domainName: 'your-custom-domain.com',
-        // create a certificate in us-east-1 for custom domain
-        certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'YOUR_CERTIFICATE_ARN'),
-        endpointType: apigateway.EndpointType.EDGE,
-        securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+      apiProps: {
+        // optional domain name options for using a custom domain with API Gateway
+        domainName: {
+          domainName: 'your-custom-domain.com',
+          // create a certificate in us-east-1 for custom domain
+          certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012'),
+          endpointType: apigateway.EndpointType.EDGE,
+          securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+        },
       },
     });
   }

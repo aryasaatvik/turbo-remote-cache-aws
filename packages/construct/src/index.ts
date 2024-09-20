@@ -10,9 +10,45 @@ import * as path from 'path';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 export interface TurboRemoteCacheProps {
   /**
-   * domain name options for API Gateway
+   * API Gateway props
+   * @default
+   *  restApiName: 'Turborepo Remote Cache API',
+   *  description: 'Turborepo is an intelligent build system optimized for JavaScript and TypeScript codebases.',
+   *  cloudWatchRole: true,
+   *  deployOptions: {
+   *    documentationVersion: '8.0.0',
+   *    loggingLevel: apigateway.MethodLoggingLevel.INFO,
+   *    accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
+   *    accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
+   *    dataTraceEnabled: true,
+   *    tracingEnabled: true,
+   *  },
+   *  binaryMediaTypes: ['application/octet-stream'],
    */
-  domainNameOptions?: apigateway.DomainNameOptions
+  apiProps?: apigateway.RestApiProps,
+  /**
+   * S3 bucket props for the artifacts bucket
+   * @default
+   *  bucketName: 'turbo-remote-cache-artifacts',
+   *  lifecycleRules: [
+   *    {
+   *      expiration: cdk.Duration.days(30),
+   *    },
+   *  ],
+   *  removalPolicy: cdk.RemovalPolicy.DESTROY,
+   */
+  artifactsBucketProps?: s3.BucketProps,
+  /**
+   * DynamoDB table props for the events table
+   * @default
+   *  tableName: 'turbo-remote-cache-events',
+   *  billingMode: dynamodb.BillingMode.PROVISIONED,
+   *  readCapacity: 5,
+   *  writeCapacity: 5,
+   *  timeToLiveAttribute: 'ttl',
+   *  removalPolicy: cdk.RemovalPolicy.DESTROY,
+   */
+  eventsTableProps?: dynamodb.TableProps
 }
 
 export class TurboRemoteCache extends Construct {
@@ -31,6 +67,7 @@ export class TurboRemoteCache extends Construct {
         },
       ],
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      ...props.artifactsBucketProps,
     });
 
     const s3Credentials = new iam.Role(this, 'S3CredentialsRole', {
@@ -51,6 +88,7 @@ export class TurboRemoteCache extends Construct {
       writeCapacity: 5,
       timeToLiveAttribute: 'ttl',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      ...props.eventsTableProps,
     });
 
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
@@ -59,10 +97,10 @@ export class TurboRemoteCache extends Construct {
     });
 
     const api = new APIGateway(this, 'APIGateway', {
-      domainNameOptions: props.domainNameOptions,
       lambdaFunctions,
       artifactsBucket,
       s3Credentials,
+      ...props.apiProps,
     });
   }
 }

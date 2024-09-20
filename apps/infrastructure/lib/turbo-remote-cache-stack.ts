@@ -9,11 +9,13 @@ export class TurboRemoteCacheStack extends cdk.Stack {
     super(scope, id, props);
 
     new TurboRemoteCache(this, 'TurboRemoteCache', {
-      domainNameOptions: {
-        domainName: 'turbo-remote-cache.arya.sh',
-        certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'arn:aws:acm:us-east-1:654654387918:certificate/458b8937-86f4-4c1d-86bb-d43b5e6d20c0'),
-        endpointType: apigateway.EndpointType.EDGE,
-        securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+      apiProps: {
+        domainName: {
+          domainName: 'turbo-remote-cache.arya.sh',
+          certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', 'arn:aws:acm:us-east-1:654654387918:certificate/458b8937-86f4-4c1d-86bb-d43b5e6d20c0'),
+          endpointType: apigateway.EndpointType.EDGE,
+          securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+        },
       },
     });
   }
