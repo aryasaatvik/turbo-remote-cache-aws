@@ -4,7 +4,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Template } from 'aws-cdk-lib/assertions';
 import { TurboRemoteCache } from '../src';
 
-describe('TurboRemoteCache Construct', () => {
+describe('TurboRemoteCache Default Construct', () => {
   let stack: cdk.Stack;
   let template: Template;
 
@@ -48,23 +48,69 @@ describe('TurboRemoteCache Construct', () => {
       },
     });
   });
+});
 
-  test('Custom Domain Configuration', () => {
-    const stackWithCustomDomain = new cdk.Stack();
-    new TurboRemoteCache(stackWithCustomDomain, 'TestConstructWithCustomDomain', {
+describe('TurboRemoteCache Custom Domain Construct', () => {
+  let stack: cdk.Stack;
+  let template: Template;
+
+  beforeEach(() => {
+    stack = new cdk.Stack();
+    new TurboRemoteCache(stack, 'TestConstructWithCustomDomain', {
       apiProps: {
         domainName: {
           domainName: 'test.example.com',
-          certificate: acm.Certificate.fromCertificateArn(stackWithCustomDomain, 'Certificate', 'arn:aws:acm:us-east-1:123456789012:certificate/test-cert'),
+          certificate: acm.Certificate.fromCertificateArn(stack, 'Certificate', 'arn:aws:acm:us-east-1:123456789012:certificate/test-cert'),
           endpointType: apigateway.EndpointType.EDGE,
           securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
         },
       },
     });
-    const templateWithCustomDomain = Template.fromStack(stackWithCustomDomain);
+    template = Template.fromStack(stack);
+  });
 
-    templateWithCustomDomain.hasResourceProperties('AWS::ApiGateway::DomainName', {
+  test('Custom Domain Configuration', () => {
+    template.hasResourceProperties('AWS::ApiGateway::DomainName', {
       DomainName: 'test.example.com',
+  });
+  });
+});
+
+describe('TurboRemoteCache Custom Resource Props', () => {
+  let stack: cdk.Stack;
+  let template: Template;
+
+  beforeEach(() => {
+    stack = new cdk.Stack();
+    new TurboRemoteCache(stack, 'TestConstructWithCustomResourceProps', {
+      apiProps: {
+        restApiName: 'test-rest-api',
+        deployOptions: {
+          stageName: 'test-stage',
+        },
+      },
+      artifactsBucketProps: {
+        bucketName: 'test-artifacts-bucket',
+      },
+      eventsTableProps: {
+        tableName: 'test-events-table',
+      },
+    });
+    template = Template.fromStack(stack);
+  });
+
+  test('Custom Resource Props', () => {
+    template.hasResourceProperties('AWS::ApiGateway::RestApi', {
+      Name: 'test-rest-api',
+    });
+    template.hasResourceProperties('AWS::ApiGateway::Stage', {
+      StageName: 'test-stage',
+    });
+    template.hasResourceProperties('AWS::S3::Bucket', {
+      BucketName: 'test-artifacts-bucket',
+    });
+    template.hasResourceProperties('AWS::DynamoDB::Table', {
+      TableName: 'test-events-table',
     });
   });
 });
