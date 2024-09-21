@@ -5,10 +5,15 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
 import { LambdaFunctions } from './lambda';
 import { APIGateway } from './api';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 export interface TurboRemoteCacheProps {
+  /**
+   * Turbo Token
+   * used to authenticate requests to the API
+   * @required
+   * @example generate a random string using `openssl rand -base64 32`
+   */
+  turboToken: string;
   /**
    * API Gateway props
    * @default
@@ -54,8 +59,6 @@ export interface TurboRemoteCacheProps {
 export class TurboRemoteCache extends Construct {
   constructor(scope: Construct, id: string, props: TurboRemoteCacheProps) {
     super(scope, id);
-
-    dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
     const artifactsBucket = new s3.Bucket(this, 'ArtifactsBucket', {
       versioned: false,

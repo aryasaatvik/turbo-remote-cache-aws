@@ -10,7 +10,9 @@ describe('TurboRemoteCache Default Construct', () => {
 
   beforeEach(() => {
     stack = new cdk.Stack();
-    new TurboRemoteCache(stack, 'TestConstruct', {});
+    new TurboRemoteCache(stack, 'TestConstruct', {
+      turboToken: 'test-token',
+    });
     template = Template.fromStack(stack);
   });
 
@@ -57,6 +59,7 @@ describe('TurboRemoteCache Custom Domain Construct', () => {
   beforeEach(() => {
     stack = new cdk.Stack();
     new TurboRemoteCache(stack, 'TestConstructWithCustomDomain', {
+      turboToken: 'test-token',
       apiProps: {
         domainName: {
           domainName: 'test.example.com',
@@ -72,7 +75,7 @@ describe('TurboRemoteCache Custom Domain Construct', () => {
   test('Custom Domain Configuration', () => {
     template.hasResourceProperties('AWS::ApiGateway::DomainName', {
       DomainName: 'test.example.com',
-  });
+    });
   });
 });
 
@@ -83,6 +86,7 @@ describe('TurboRemoteCache Custom Resource Props', () => {
   beforeEach(() => {
     stack = new cdk.Stack();
     new TurboRemoteCache(stack, 'TestConstructWithCustomResourceProps', {
+      turboToken: 'test-token',
       apiProps: {
         restApiName: 'test-rest-api',
         deployOptions: {
