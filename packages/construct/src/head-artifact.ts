@@ -25,6 +25,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
             'method.response.header.Content-Type': 'integration.response.header.Content-Type',
             'method.response.header.ETag': 'integration.response.header.ETag',
             'method.response.header.Last-Modified': 'integration.response.header.Last-Modified',
+            'method.response.header.x-artifact-duration': 'integration.response.header.x-amz-meta-artifact-duration',
           },
         },
         {
@@ -49,6 +50,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
       {
         statusCode: '200',
         responseParameters: {
+          'method.response.header.x-artifact-duration': true,
           'method.response.header.Content-Length': true,
           'method.response.header.Content-Type': true,
           'method.response.header.ETag': true,
