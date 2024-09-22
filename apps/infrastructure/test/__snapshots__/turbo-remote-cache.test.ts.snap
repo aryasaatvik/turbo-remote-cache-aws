@@ -412,7 +412,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A5d49a9c3039eb1d9b1819ffc1af35ed2a": {
+    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A55383c36c18c64c3b9db17ec12e1b949b": {
       "DependsOn": [
         "TurboRemoteCacheAPIGatewayArtifactQueryModel5321348F",
         "TurboRemoteCacheAPIGatewayPutArtifactResponseModel270400F2",
@@ -467,7 +467,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
           "Format": "{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","caller":"$context.identity.caller","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}",
         },
         "DeploymentId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A5d49a9c3039eb1d9b1819ffc1af35ed2a",
+          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A55383c36c18c64c3b9db17ec12e1b949b",
         },
         "DocumentationVersion": "8.0.0",
         "MethodSettings": [
@@ -824,7 +824,12 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
             {
               "ContentHandling": "CONVERT_TO_BINARY",
               "ResponseParameters": {
+                "method.response.header.Content-Length": "integration.response.header.Content-Length",
                 "method.response.header.Content-Type": "integration.response.header.Content-Type",
+                "method.response.header.ETag": "integration.response.header.ETag",
+                "method.response.header.Last-Modified": "integration.response.header.Last-Modified",
+                "method.response.header.x-artifact-duration": "integration.response.header.x-amz-meta-artifact-duration",
+                "method.response.header.x-artifact-tag": "integration.response.header.x-amz-meta-artifact-tag",
               },
               "StatusCode": "200",
             },
@@ -845,6 +850,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
           ],
           "RequestParameters": {
             "integration.request.path.hash": "method.request.path.hash",
+            "integration.request.path.slug": "method.request.querystring.slug",
           },
           "Type": "AWS",
           "Uri": {
@@ -863,7 +869,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
                 {
                   "Ref": "TurboRemoteCacheArtifactsBucketF0A2E6E7",
                 },
-                "/artifacts/{hash}",
+                "/{slug}/{hash}",
               ],
             ],
           },
@@ -871,7 +877,12 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
         "MethodResponses": [
           {
             "ResponseParameters": {
+              "method.response.header.Content-Length": true,
               "method.response.header.Content-Type": true,
+              "method.response.header.ETag": true,
+              "method.response.header.Last-Modified": true,
+              "method.response.header.x-artifact-duration": true,
+              "method.response.header.x-artifact-tag": true,
             },
             "StatusCode": "200",
           },
@@ -891,6 +902,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
         "OperationName": "downloadArtifact",
         "RequestParameters": {
           "method.request.path.hash": true,
+          "method.request.querystring.slug": true,
         },
         "ResourceId": {
           "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashDDD3902F",
@@ -923,6 +935,8 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
                 "method.response.header.Content-Type": "integration.response.header.Content-Type",
                 "method.response.header.ETag": "integration.response.header.ETag",
                 "method.response.header.Last-Modified": "integration.response.header.Last-Modified",
+                "method.response.header.x-artifact-duration": "integration.response.header.x-amz-meta-artifact-duration",
+                "method.response.header.x-artifact-tag": "integration.response.header.x-amz-meta-artifact-tag",
               },
               "StatusCode": "200",
             },
@@ -933,6 +947,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
           ],
           "RequestParameters": {
             "integration.request.path.hash": "method.request.path.hash",
+            "integration.request.path.slug": "method.request.querystring.slug",
           },
           "Type": "AWS",
           "Uri": {
@@ -951,7 +966,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
                 {
                   "Ref": "TurboRemoteCacheArtifactsBucketF0A2E6E7",
                 },
-                "/artifacts/{hash}",
+                "/{slug}/{hash}",
               ],
             ],
           },
@@ -963,6 +978,8 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
               "method.response.header.Content-Type": true,
               "method.response.header.ETag": true,
               "method.response.header.Last-Modified": true,
+              "method.response.header.x-artifact-duration": true,
+              "method.response.header.x-artifact-tag": true,
             },
             "StatusCode": "200",
           },
@@ -973,6 +990,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
         "OperationName": "artifactExists",
         "RequestParameters": {
           "method.request.path.hash": true,
+          "method.request.querystring.slug": true,
         },
         "ResourceId": {
           "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashDDD3902F",
@@ -1004,7 +1022,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
                 "method.response.header.Content-Type": "'application/json'",
               },
               "ResponseTemplates": {
-                "application/json": "{"urls":["https://$util.escapeJavaScript($context.domainName)/artifacts/$input.params('hash')"]}",
+                "application/json": "{"urls":["https://$util.escapeJavaScript($context.domainName)/$input.params('slug')/$input.params('hash')"]}",
               },
               "StatusCode": "202",
             },
@@ -1023,6 +1041,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
             "integration.request.header.x-amz-meta-artifact-duration": "method.request.header.x-artifact-duration",
             "integration.request.header.x-amz-meta-artifact-tag": "method.request.header.x-artifact-tag",
             "integration.request.path.hash": "method.request.path.hash",
+            "integration.request.path.slug": "method.request.querystring.slug",
           },
           "Type": "AWS",
           "Uri": {
@@ -1041,7 +1060,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
                 {
                   "Ref": "TurboRemoteCacheArtifactsBucketF0A2E6E7",
                 },
-                "/artifacts/{hash}",
+                "/{slug}/{hash}",
               ],
             ],
           },
@@ -1073,6 +1092,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
           "method.request.header.x-artifact-duration": false,
           "method.request.header.x-artifact-tag": false,
           "method.request.path.hash": true,
+          "method.request.querystring.slug": true,
         },
         "ResourceId": {
           "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashDDD3902F",
@@ -1315,7 +1335,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs18.x",
+        "Runtime": "nodejs20.x",
       },
       "Type": "AWS::Lambda::Function",
     },
@@ -1447,7 +1467,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs18.x",
+        "Runtime": "nodejs20.x",
       },
       "Type": "AWS::Lambda::Function",
     },
