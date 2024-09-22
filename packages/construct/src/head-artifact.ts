@@ -14,7 +14,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
   const headIntegration = new apigateway.AwsIntegration({
     service: 's3',
     integrationHttpMethod: 'HEAD',
-    path: `${props.artifactsBucket.bucketName}/artifacts/{hash}`,
+    path: `${props.artifactsBucket.bucketName}/{slug}/{hash}`,
     options: {
       credentialsRole: props.s3Credentials,
       integrationResponses: [
@@ -25,6 +25,8 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
             'method.response.header.Content-Type': 'integration.response.header.Content-Type',
             'method.response.header.ETag': 'integration.response.header.ETag',
             'method.response.header.Last-Modified': 'integration.response.header.Last-Modified',
+            'method.response.header.x-artifact-duration': 'integration.response.header.x-amz-meta-artifact-duration',
+            'method.response.header.x-artifact-tag': 'integration.response.header.x-amz-meta-artifact-tag',
           },
         },
         {
@@ -34,6 +36,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
       ],
       requestParameters: {
         'integration.request.path.hash': 'method.request.path.hash',
+        'integration.request.path.slug': 'method.request.querystring.slug',
       },
     },
   });
@@ -42,11 +45,14 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
     operationName: 'artifactExists',
     requestParameters: {
       'method.request.path.hash': true,
+      'method.request.querystring.slug': true,
     },
     methodResponses: [
       {
         statusCode: '200',
         responseParameters: {
+          'method.response.header.x-artifact-duration': true,
+          'method.response.header.x-artifact-tag': true,
           'method.response.header.Content-Length': true,
           'method.response.header.Content-Type': true,
           'method.response.header.ETag': true,

@@ -12,17 +12,17 @@ interface LambdaFunctionsProps {
 export class LambdaFunctions extends Construct {
   public readonly recordEventsFunction: lambda.Function;
   public readonly artifactQueryFunction: lambda.Function;
-  public statusFunction: lambda.Function;
-  public initiateLoginFunction: lambda.Function;
-  public loginSuccessFunction: lambda.Function;
-  public getUserInfoFunction: lambda.Function;
+  public readonly statusFunction: lambda.Function;
+  public readonly initiateLoginFunction: lambda.Function;
+  public readonly loginSuccessFunction: lambda.Function;
+  public readonly getUserInfoFunction: lambda.Function;
   public readonly tokenAuthorizerFunction: lambda.Function;
 
   constructor(scope: Construct, id: string, props: LambdaFunctionsProps) {
     super(scope, id);
 
     this.recordEventsFunction = new lambda.Function(this, 'RecordEventsFunction', {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       functionName: 'turbo-remote-cache-record-events',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/record-events')),
@@ -32,7 +32,7 @@ export class LambdaFunctions extends Construct {
     });
 
     this.artifactQueryFunction = new lambda.Function(this, 'ArtifactQueryFunction', {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       functionName: 'turbo-remote-cache-artifact-query',
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/artifact-query')),

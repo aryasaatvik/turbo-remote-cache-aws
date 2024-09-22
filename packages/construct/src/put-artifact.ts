@@ -14,7 +14,8 @@ export function putArtifactIntegration(scope: Construct, props: PutArtifactInteg
   const putIntegration = new apigateway.AwsIntegration({
     service: 's3',
     integrationHttpMethod: 'PUT',
-    path: `${props.artifactsBucket.bucketName}/artifacts/{hash}`,
+    // path: `${props.artifactsBucket.bucketName}/{teamId}/{slug}/{hash}`,
+    path: `${props.artifactsBucket.bucketName}/{slug}/{hash}`,
     options: {
       credentialsRole: props.s3Credentials,
       integrationResponses: [
@@ -23,7 +24,7 @@ export function putArtifactIntegration(scope: Construct, props: PutArtifactInteg
           responseTemplates: {
             'application/json': JSON.stringify({
               urls: [
-                "https://$util.escapeJavaScript($context.domainName)/artifacts/$input.params('hash')"
+                "https://$util.escapeJavaScript($context.domainName)/$input.params('slug')/$input.params('hash')"
               ]
             }),
           },
@@ -41,6 +42,8 @@ export function putArtifactIntegration(scope: Construct, props: PutArtifactInteg
       ],
       requestParameters: {
         'integration.request.path.hash': 'method.request.path.hash',
+        // 'integration.request.path.teamId': 'method.request.querystring.teamId',
+        'integration.request.path.slug': 'method.request.querystring.slug',
         'integration.request.header.Content-Length': 'method.request.header.Content-Length',
         'integration.request.header.x-amz-meta-artifact-duration': 'method.request.header.x-artifact-duration',
         'integration.request.header.x-amz-meta-artifact-client-ci': 'method.request.header.x-artifact-client-ci',
@@ -54,6 +57,8 @@ export function putArtifactIntegration(scope: Construct, props: PutArtifactInteg
     operationName: 'uploadArtifact',
     requestParameters: {
       'method.request.path.hash': true,
+      // 'method.request.querystring.teamId': true,
+      'method.request.querystring.slug': true,
       'method.request.header.Content-Length': true,
       'method.request.header.x-artifact-duration': false,
       'method.request.header.x-artifact-client-ci': false,
