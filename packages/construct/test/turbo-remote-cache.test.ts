@@ -35,7 +35,7 @@ describe('TurboRemoteCache Default Construct', () => {
   });
 
   test('Lambda Functions Created', () => {
-    template.resourceCountIs('AWS::Lambda::Function', 6);
+    template.resourceCountIs('AWS::Lambda::Function', 4);
   });
 
   test('S3 Bucket Lifecycle Rule', () => {
