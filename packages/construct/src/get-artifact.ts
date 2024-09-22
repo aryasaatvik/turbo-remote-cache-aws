@@ -26,6 +26,7 @@ export function getArtifactIntegration(scope: Construct, props: GetArtifactInteg
             'method.response.header.ETag': 'integration.response.header.ETag',
             'method.response.header.Last-Modified': 'integration.response.header.Last-Modified',
             'method.response.header.x-artifact-duration': 'integration.response.header.x-amz-meta-artifact-duration',
+            'method.response.header.x-artifact-tag': 'integration.response.header.x-amz-meta-artifact-tag',
           },
           contentHandling: apigateway.ContentHandling.CONVERT_TO_BINARY,
         },
@@ -72,6 +73,7 @@ export function getArtifactIntegration(scope: Construct, props: GetArtifactInteg
           'method.response.header.ETag': true,
           'method.response.header.Last-Modified': true,
           'method.response.header.x-artifact-duration': true,
+          'method.response.header.x-artifact-tag': true,
         },
       },
       {
