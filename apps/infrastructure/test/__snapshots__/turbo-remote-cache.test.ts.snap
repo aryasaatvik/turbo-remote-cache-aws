@@ -1680,7 +1680,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "8b700c9b1fc222cb5b0d71408fbe9938f46017c169a9a40bb4078c32b461a8e9.zip",
+          "S3Key": "fa2eda05ee07bc8a40527dc0f3ea308f1ece4f694c33d4d6b6eddde1d90713e1.zip",
         },
         "Environment": {
           "Variables": {

@@ -7,6 +7,13 @@ export const handler: APIGatewayTokenAuthorizerHandler = async (event) => {
   }
   const turboToken = process.env.TURBO_TOKEN;
 
+  const methodArnParts = event.methodArn.split(':');
+  const region = methodArnParts[3];
+  const accountId = methodArnParts[4];
+  const apiParts = methodArnParts[5].split('/');
+  const apiId = apiParts[0];
+  const stage = apiParts[1];
+
   if (token === turboToken) {
     return {
       principalId: 'user',
@@ -15,7 +22,7 @@ export const handler: APIGatewayTokenAuthorizerHandler = async (event) => {
         Statement: [{
           Action: 'execute-api:Invoke',
           Effect: 'Allow',
-          Resource: event.methodArn
+          Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/${stage}/*/*`
         }]
       }
     };
