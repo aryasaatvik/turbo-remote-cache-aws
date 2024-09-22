@@ -16,6 +16,7 @@ export class LambdaFunctions extends Construct {
   public initiateLoginFunction: lambda.Function;
   public loginSuccessFunction: lambda.Function;
   public getUserInfoFunction: lambda.Function;
+  public readonly tokenAuthorizerFunction: lambda.Function;
 
   constructor(scope: Construct, id: string, props: LambdaFunctionsProps) {
     super(scope, id);
@@ -47,6 +48,16 @@ export class LambdaFunctions extends Construct {
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/status')),
       environment: {
         BUCKET_NAME: props.artifactsBucket.bucketName,
+      },
+    });
+
+    this.tokenAuthorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      functionName: 'turbo-remote-cache-token-authorizer',
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/token-authorizer')),
+      environment: {
+        TURBO_TOKEN: process.env.TURBO_TOKEN!,
       },
     });
 

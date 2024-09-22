@@ -21,6 +21,12 @@ export class APIGateway extends Construct {
     super(scope, id);
     const logGroup = logs.LogGroup.fromLogGroupName(this, 'LogGroup', '/aws/apigateway/turbo-remote-cache-api');
 
+    const tokenAuthorizer = new apigateway.TokenAuthorizer(this, 'TokenAuthorizer', {
+      handler: props.lambdaFunctions.tokenAuthorizerFunction,
+      resultsCacheTtl: cdk.Duration.minutes(60),
+      identitySource: 'method.request.header.Authorization',
+    });
+
     const api = new apigateway.RestApi(this, 'TurboRemoteCacheApi', {
       restApiName: 'Turborepo Remote Cache API',
       description: 'Turborepo is an intelligent build system optimized for JavaScript and TypeScript codebases.',
@@ -34,6 +40,10 @@ export class APIGateway extends Construct {
         tracingEnabled: true,
       },
       binaryMediaTypes: ['application/octet-stream'],
+      defaultMethodOptions: {
+        authorizationType: apigateway.AuthorizationType.CUSTOM,
+        authorizer: tokenAuthorizer,
+      },
       ...props.apiProps,
     });
 
