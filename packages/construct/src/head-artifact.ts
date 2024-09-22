@@ -14,7 +14,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
   const headIntegration = new apigateway.AwsIntegration({
     service: 's3',
     integrationHttpMethod: 'HEAD',
-    path: `${props.artifactsBucket.bucketName}/artifacts/{hash}`,
+    path: `${props.artifactsBucket.bucketName}/{slug}/{hash}`,
     options: {
       credentialsRole: props.s3Credentials,
       integrationResponses: [
@@ -34,6 +34,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
       ],
       requestParameters: {
         'integration.request.path.hash': 'method.request.path.hash',
+        'integration.request.path.slug': 'method.request.querystring.slug',
       },
     },
   });
@@ -42,6 +43,7 @@ export function headArtifactIntegration(scope: Construct, props: HeadArtifactInt
     operationName: 'artifactExists',
     requestParameters: {
       'method.request.path.hash': true,
+      'method.request.querystring.slug': true,
     },
     methodResponses: [
       {
