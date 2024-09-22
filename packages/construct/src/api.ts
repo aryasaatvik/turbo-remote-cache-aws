@@ -21,6 +21,12 @@ export class APIGateway extends Construct {
     super(scope, id);
     const logGroup = logs.LogGroup.fromLogGroupName(this, 'LogGroup', '/aws/apigateway/turbo-remote-cache-api');
 
+    const tokenAuthorizer = new apigateway.TokenAuthorizer(this, 'TokenAuthorizer', {
+      handler: props.lambdaFunctions.tokenAuthorizerFunction,
+      resultsCacheTtl: cdk.Duration.minutes(60),
+      identitySource: 'method.request.header.Authorization',
+    });
+
     const api = new apigateway.RestApi(this, 'TurboRemoteCacheApi', {
       restApiName: 'Turborepo Remote Cache API',
       description: 'Turborepo is an intelligent build system optimized for JavaScript and TypeScript codebases.',
@@ -34,6 +40,10 @@ export class APIGateway extends Construct {
         tracingEnabled: true,
       },
       binaryMediaTypes: ['application/octet-stream'],
+      defaultMethodOptions: {
+        authorizationType: apigateway.AuthorizationType.CUSTOM,
+        authorizer: tokenAuthorizer,
+      },
       ...props.apiProps,
     });
 
@@ -200,76 +210,77 @@ export class APIGateway extends Construct {
     });
 
     // turbo login
-    const turborepoResource = api.root.addResource('turborepo');
-    const tokenResource = turborepoResource.addResource('token');
+    // TODO: implement turbo login for third party JWTs
+    // const turborepoResource = api.root.addResource('turborepo');
+    // const tokenResource = turborepoResource.addResource('token');
 
-    // GET /v8/turborepo/token
-    tokenResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.initiateLoginFunction), {
-      operationName: 'initiateLogin',
-    });
+    // // GET /v8/turborepo/token
+    // tokenResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.initiateLoginFunction), {
+    //   operationName: 'initiateLogin',
+    // });
 
-    const initiateLoginDocumentationPart = {
-      description: 'Initiates a login process for Turborepo.',
-      summary: 'Initiate login',
-      tags: ['login'],
-    }
+    // const initiateLoginDocumentationPart = {
+    //   description: 'Initiates a login process for Turborepo.',
+    //   summary: 'Initiate login',
+    //   tags: ['login'],
+    // }
 
-    new apigateway.CfnDocumentationPart(this, 'TurborepoInitiateLoginDocumentationPart', {
-      location: {
-        type: 'METHOD',
-        method: 'GET',
-        path: '/v8/turborepo/token',
-      },
-      properties: JSON.stringify(initiateLoginDocumentationPart),
-      restApiId: api.restApiId,
-    });
+    // new apigateway.CfnDocumentationPart(this, 'TurborepoInitiateLoginDocumentationPart', {
+    //   location: {
+    //     type: 'METHOD',
+    //     method: 'GET',
+    //     path: '/v8/turborepo/token',
+    //   },
+    //   properties: JSON.stringify(initiateLoginDocumentationPart),
+    //   restApiId: api.restApiId,
+    // });
 
-    // GET /v8/turborepo/success
-    const successResource = turborepoResource.addResource('success');
-    successResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.loginSuccessFunction), {
-      operationName: 'loginSuccess',
-    });
+    // // GET /v8/turborepo/success
+    // const successResource = turborepoResource.addResource('success');
+    // successResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.loginSuccessFunction), {
+    //   operationName: 'loginSuccess',
+    // });
 
-    const loginSuccessDocumentationPart = {
-      description: 'Handles the success of a login process for Turborepo.',
-      summary: 'Login success',
-      tags: ['login'],
-    }
+    // const loginSuccessDocumentationPart = {
+    //   description: 'Handles the success of a login process for Turborepo.',
+    //   summary: 'Login success',
+    //   tags: ['login'],
+    // }
 
-    new apigateway.CfnDocumentationPart(this, 'TurborepoLoginSuccessDocumentationPart', {
-      location: {
-        type: 'METHOD',
-        method: 'GET',
-        path: '/v8/turborepo/success',
-      },
-      properties: JSON.stringify(loginSuccessDocumentationPart),
-      restApiId: api.restApiId,
-    });
+    // new apigateway.CfnDocumentationPart(this, 'TurborepoLoginSuccessDocumentationPart', {
+    //   location: {
+    //     type: 'METHOD',
+    //     method: 'GET',
+    //     path: '/v8/turborepo/success',
+    //   },
+    //   properties: JSON.stringify(loginSuccessDocumentationPart),
+    //   restApiId: api.restApiId,
+    // });
 
-    const v2Resource = api.root.addResource('v2');
+    // const v2Resource = api.root.addResource('v2');
 
-    const userResource = v2Resource.addResource('user');
+    // const userResource = v2Resource.addResource('user');
 
-    // GET /v2/user
-    userResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.getUserInfoFunction), {
-      operationName: 'getUserInfo',
-    });
+    // // GET /v2/user
+    // userResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.getUserInfoFunction), {
+    //   operationName: 'getUserInfo',
+    // });
 
-    const getUserInfoDocumentationPart = {
-      description: 'Retrieves information about the authenticated user.',
-      summary: 'Get user info',
-      tags: ['login'],
-    }
+    // const getUserInfoDocumentationPart = {
+    //   description: 'Retrieves information about the authenticated user.',
+    //   summary: 'Get user info',
+    //   tags: ['login'],
+    // }
 
-    new apigateway.CfnDocumentationPart(this, 'TurborepoUserInfoDocumentationPart', {
-      location: {
-        type: 'METHOD',
-        method: 'GET',
-        path: '/v2/user',
-      },
-      properties: JSON.stringify(getUserInfoDocumentationPart),
-      restApiId: api.restApiId,
-    });
+    // new apigateway.CfnDocumentationPart(this, 'TurborepoUserInfoDocumentationPart', {
+    //   location: {
+    //     type: 'METHOD',
+    //     method: 'GET',
+    //     path: '/v2/user',
+    //   },
+    //   properties: JSON.stringify(getUserInfoDocumentationPart),
+    //   restApiId: api.restApiId,
+    // });
 
     // cloudfront domain name for CNAME
     new cdk.CfnOutput(this, 'CloudfrontAliasDomainName', {

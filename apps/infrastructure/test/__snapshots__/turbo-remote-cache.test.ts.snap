@@ -265,6 +265,67 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
       },
       "Type": "AWS::ApiGateway::Model",
     },
+    "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F": {
+      "Properties": {
+        "AuthorizerResultTtlInSeconds": 3600,
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunction06F32FD1",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ":apigateway:",
+              {
+                "Fn::Select": [
+                  3,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunction06F32FD1",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunction06F32FD1",
+                  "Arn",
+                ],
+              },
+              "/invocations",
+            ],
+          ],
+        },
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "TurboRemoteCacheStackTurboRemoteCacheAPIGatewayTokenAuthorizer96669B3D",
+        "RestApiId": {
+          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
+        },
+        "Type": "TOKEN",
+      },
+      "Type": "AWS::ApiGateway::Authorizer",
+    },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413": {
       "Properties": {
         "BinaryMediaTypes": [
@@ -351,20 +412,12 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
       },
       "Type": "AWS::ApiGateway::BasePathMapping",
     },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A582f488429fb6628155c17470a6e1057e": {
+    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A5d49a9c3039eb1d9b1819ffc1af35ed2a": {
       "DependsOn": [
         "TurboRemoteCacheAPIGatewayArtifactQueryModel5321348F",
         "TurboRemoteCacheAPIGatewayPutArtifactResponseModel270400F2",
         "TurboRemoteCacheAPIGatewayRecordEventsModel6C9AF718",
         "TurboRemoteCacheAPIGatewayStatusResponseModelB501FDFE",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepoBA4106BF",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturboreposuccessGET127C2075",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturboreposuccess0C278883",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepotokenGETC2E32EEA",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepotokenFCF0C102",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2558F4A9F",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2userGETFB8012C9",
-        "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2user307EB411",
         "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashGETE7538659",
         "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashHEAD1C8B6AC1",
         "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashPUT17E3E309",
@@ -414,7 +467,7 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
           "Format": "{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","caller":"$context.identity.caller","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}",
         },
         "DeploymentId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A582f488429fb6628155c17470a6e1057e",
+          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentA3F8C9A5d49a9c3039eb1d9b1819ffc1af35ed2a",
         },
         "DocumentationVersion": "8.0.0",
         "MethodSettings": [
@@ -432,429 +485,6 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
         "TracingEnabled": true,
       },
       "Type": "AWS::ApiGateway::Stage",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepoBA4106BF": {
-      "Properties": {
-        "ParentId": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-            "RootResourceId",
-          ],
-        },
-        "PathPart": "turborepo",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturboreposuccess0C278883": {
-      "Properties": {
-        "ParentId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepoBA4106BF",
-        },
-        "PathPart": "success",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturboreposuccessGET127C2075": {
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "GET",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "TurboRemoteCacheLambdaFunctionsLoginSuccessFunction6FBFB22F",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "OperationName": "loginSuccess",
-        "ResourceId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturboreposuccess0C278883",
-        },
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturboreposuccessGETApiPermissionTestTurboRemoteCacheStackTurboRemoteCacheAPIGatewayTurboRemoteCacheApiBBF453B6GETturboreposuccess0A1C68C9": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsLoginSuccessFunction6FBFB22F",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-              },
-              "/test-invoke-stage/GET/turborepo/success",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturboreposuccessGETApiPermissionTurboRemoteCacheStackTurboRemoteCacheAPIGatewayTurboRemoteCacheApiBBF453B6GETturboreposuccess8A5ED094": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsLoginSuccessFunction6FBFB22F",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-              },
-              "/",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentStageprod6F04E129",
-              },
-              "/GET/turborepo/success",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepotokenFCF0C102": {
-      "Properties": {
-        "ParentId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepoBA4106BF",
-        },
-        "PathPart": "token",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepotokenGETApiPermissionTestTurboRemoteCacheStackTurboRemoteCacheAPIGatewayTurboRemoteCacheApiBBF453B6GETturborepotokenC8A69CDD": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsInitiateLoginFunctionFD31A03C",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-              },
-              "/test-invoke-stage/GET/turborepo/token",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepotokenGETApiPermissionTurboRemoteCacheStackTurboRemoteCacheAPIGatewayTurboRemoteCacheApiBBF453B6GETturborepotoken213D6456": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsInitiateLoginFunctionFD31A03C",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-              },
-              "/",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentStageprod6F04E129",
-              },
-              "/GET/turborepo/token",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepotokenGETC2E32EEA": {
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "GET",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "TurboRemoteCacheLambdaFunctionsInitiateLoginFunctionFD31A03C",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "OperationName": "initiateLogin",
-        "ResourceId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiturborepotokenFCF0C102",
-        },
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2558F4A9F": {
-      "Properties": {
-        "ParentId": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-            "RootResourceId",
-          ],
-        },
-        "PathPart": "v2",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2user307EB411": {
-      "Properties": {
-        "ParentId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2558F4A9F",
-        },
-        "PathPart": "user",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2userGETApiPermissionTestTurboRemoteCacheStackTurboRemoteCacheAPIGatewayTurboRemoteCacheApiBBF453B6GETv2user37389F15": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsGetUserInfoFunction68482AC5",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-              },
-              "/test-invoke-stage/GET/v2/user",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2userGETApiPermissionTurboRemoteCacheStackTurboRemoteCacheAPIGatewayTurboRemoteCacheApiBBF453B6GETv2user0193C368": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsGetUserInfoFunction68482AC5",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-              },
-              "/",
-              {
-                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiDeploymentStageprod6F04E129",
-              },
-              "/GET/v2/user",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2userGETFB8012C9": {
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "GET",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:",
-                {
-                  "Ref": "AWS::Region",
-                },
-                ":lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "TurboRemoteCacheLambdaFunctionsGetUserInfoFunction68482AC5",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "OperationName": "getUserInfo",
-        "ResourceId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv2user307EB411",
-        },
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
     },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8D60AE5A1": {
       "Properties": {
@@ -885,7 +515,10 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
     },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactsPOST25582727": {
       "Properties": {
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F",
+        },
         "HttpMethod": "POST",
         "Integration": {
           "IntegrationHttpMethod": "POST",
@@ -1026,7 +659,10 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
     },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactseventsPOST3BFBEAD1": {
       "Properties": {
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F",
+        },
         "HttpMethod": "POST",
         "Integration": {
           "IntegrationHttpMethod": "POST",
@@ -1171,7 +807,10 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
     },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashGETE7538659": {
       "Properties": {
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F",
+        },
         "HttpMethod": "GET",
         "Integration": {
           "Credentials": {
@@ -1264,7 +903,10 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
     },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashHEAD1C8B6AC1": {
       "Properties": {
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F",
+        },
         "HttpMethod": "HEAD",
         "Integration": {
           "Credentials": {
@@ -1343,7 +985,10 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
     },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactshashPUT17E3E309": {
       "Properties": {
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F",
+        },
         "HttpMethod": "PUT",
         "Integration": {
           "Credentials": {
@@ -1530,7 +1175,10 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
     },
     "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiv8artifactsstatusGETB3D31BB5": {
       "Properties": {
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F",
+        },
         "HttpMethod": "GET",
         "Integration": {
           "IntegrationHttpMethod": "POST",
@@ -1578,48 +1226,6 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
         },
       },
       "Type": "AWS::ApiGateway::Method",
-    },
-    "TurboRemoteCacheAPIGatewayTurborepoInitiateLoginDocumentationPartBFB2DF4C": {
-      "Properties": {
-        "Location": {
-          "Method": "GET",
-          "Path": "/v8/turborepo/token",
-          "Type": "METHOD",
-        },
-        "Properties": "{"description":"Initiates a login process for Turborepo.","summary":"Initiate login","tags":["login"]}",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::DocumentationPart",
-    },
-    "TurboRemoteCacheAPIGatewayTurborepoLoginSuccessDocumentationPartBCB50D06": {
-      "Properties": {
-        "Location": {
-          "Method": "GET",
-          "Path": "/v8/turborepo/success",
-          "Type": "METHOD",
-        },
-        "Properties": "{"description":"Handles the success of a login process for Turborepo.","summary":"Login success","tags":["login"]}",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::DocumentationPart",
-    },
-    "TurboRemoteCacheAPIGatewayTurborepoUserInfoDocumentationPartB3E077C9": {
-      "Properties": {
-        "Location": {
-          "Method": "GET",
-          "Path": "/v2/user",
-          "Type": "METHOD",
-        },
-        "Properties": "{"description":"Retrieves information about the authenticated user.","summary":"Get user info","tags":["login"]}",
-        "RestApiId": {
-          "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
-        },
-      },
-      "Type": "AWS::ApiGateway::DocumentationPart",
     },
     "TurboRemoteCacheArtifactsBucketF0A2E6E7": {
       "DeletionPolicy": "Retain",
@@ -1813,178 +1419,6 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
-    },
-    "TurboRemoteCacheLambdaFunctionsGetUserInfoFunction68482AC5": {
-      "DependsOn": [
-        "TurboRemoteCacheLambdaFunctionsGetUserInfoFunctionServiceRole13E3DEB5",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "8e14f93aa5f1877625e8bef0cb76c9e8813cd5c29a32327ec1108aa3a317b449.zip",
-        },
-        "FunctionName": "turbo-remote-cache-get-user-info",
-        "Handler": "index.handler",
-        "Role": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsGetUserInfoFunctionServiceRole13E3DEB5",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs20.x",
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "TurboRemoteCacheLambdaFunctionsGetUserInfoFunctionServiceRole13E3DEB5": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "TurboRemoteCacheLambdaFunctionsInitiateLoginFunctionFD31A03C": {
-      "DependsOn": [
-        "TurboRemoteCacheLambdaFunctionsInitiateLoginFunctionServiceRoleE032D571",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "6c10a3408d4b564d3def44310ad190bc8427cd875e04b1dfc54810dc1d099844.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "TURBO_TOKEN": "gmuSGqofxxiJti9Rp/cMtoQZogCLRKp51AWo8Gp65Cg=",
-          },
-        },
-        "FunctionName": "turbo-remote-cache-initiate-login",
-        "Handler": "index.handler",
-        "Role": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsInitiateLoginFunctionServiceRoleE032D571",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs20.x",
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "TurboRemoteCacheLambdaFunctionsInitiateLoginFunctionServiceRoleE032D571": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "TurboRemoteCacheLambdaFunctionsLoginSuccessFunction6FBFB22F": {
-      "DependsOn": [
-        "TurboRemoteCacheLambdaFunctionsLoginSuccessFunctionServiceRoleFE578867",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "805b64f59eb7338dbe503bfbcbb05038c628bf9be4e18c838b80da7abc1d7e96.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "TURBO_TOKEN": "gmuSGqofxxiJti9Rp/cMtoQZogCLRKp51AWo8Gp65Cg=",
-          },
-        },
-        "FunctionName": "turbo-remote-cache-login-success",
-        "Handler": "index.handler",
-        "Role": {
-          "Fn::GetAtt": [
-            "TurboRemoteCacheLambdaFunctionsLoginSuccessFunctionServiceRoleFE578867",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs20.x",
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "TurboRemoteCacheLambdaFunctionsLoginSuccessFunctionServiceRoleFE578867": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
     },
     "TurboRemoteCacheLambdaFunctionsRecordEventsFunction35F02F6E": {
       "DependsOn": [
@@ -2236,6 +1670,105 @@ exports[`TurboRemoteCacheStack snapshot test 1`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunction06F32FD1": {
+      "DependsOn": [
+        "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunctionServiceRoleCE71DDCF",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "8b700c9b1fc222cb5b0d71408fbe9938f46017c169a9a40bb4078c32b461a8e9.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "TURBO_TOKEN": "gmuSGqofxxiJti9Rp/cMtoQZogCLRKp51AWo8Gp65Cg=",
+          },
+        },
+        "FunctionName": "turbo-remote-cache-token-authorizer",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunctionServiceRoleCE71DDCF",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunctionServiceRoleCE71DDCF": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunctionTurboRemoteCacheStackTurboRemoteCacheAPIGatewayTokenAuthorizer96669B3DPermissions5AC5919D": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TurboRemoteCacheLambdaFunctionsTokenAuthorizerFunction06F32FD1",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "TurboRemoteCacheAPIGatewayTurboRemoteCacheApiACECE413",
+              },
+              "/authorizers/",
+              {
+                "Ref": "TurboRemoteCacheAPIGatewayTokenAuthorizerE21E3B0F",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
     },
     "TurboRemoteCacheS3CredentialsRole957963F3": {
       "Properties": {

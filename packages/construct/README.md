@@ -48,7 +48,15 @@ export class TurboRemoteCacheStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    // load TURBO_TOKEN from .env file
+    dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
+    if (!process.env.TURBO_TOKEN) {
+      throw new Error('TURBO_TOKEN is not set');
+    }
+
     new TurboRemoteCache(this, 'TurboRemoteCache', {
+      turboToken: process.env.TURBO_TOKEN,
       apiProps: {
         // optional domain name options for using a custom domain with API Gateway
         domainName: {
