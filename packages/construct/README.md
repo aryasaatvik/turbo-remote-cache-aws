@@ -18,7 +18,7 @@ The Turborepo Remote Cache API allows teams to share and reuse build artifacts a
 ## Features
 
 - :zap: High-performance S3 integration for artifact storage
-- :lock: Secure authentication using API keys
+- :lock: Secure authentication using bearer token
 - :chart_with_upwards_trend: Scalable architecture using serverless AWS services
 - :globe_with_meridians: Optional custom domain support
 - :gear: Easy integration with existing CDK stacks
