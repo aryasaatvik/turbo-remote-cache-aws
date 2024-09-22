@@ -21,6 +21,10 @@ The Turborepo Remote Cache API allows teams to share and reuse build artifacts a
 - :recycle: Automatic artifact cleanup to manage storage costs
 - :clock1: Significant build time reduction for large projects
 
+## Getting Started
+
+[Read the guide](/GUIDE.md) to deploy the Remote Cache API in your own AWS account and use it with your Turborepo project.
+
 ## Installation
 
 To use this construct in your CDK project, install it using npm, pnpm, or yarn:
@@ -82,7 +86,7 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 }
 ```
 
-The S3 bucket, DynamoDB table, and API Gateway can be configured using the optional props. The defaults are are provided in the jsdoc comments and can be viewed in the [source code](./src/index.ts). The example above uses apiProps to configure a custom domain name for the API Gateway. It also uses artifactsBucketProps to customize the bucketName and removalPolicy to retain the bucket when the stack is deleted. Similar options are available for the DynamoDB table.
+The S3 bucket, DynamoDB table, and API Gateway can be configured using the optional props. The defaults are are provided in the jsdoc comments and can be viewed in the [source code](/packages/construct/src/index.ts). The example above uses apiProps to configure a custom domain name for the API Gateway. It also uses artifactsBucketProps to customize the bucketName and removalPolicy to retain the bucket when the stack is deleted. Similar options are available for the DynamoDB table.
 
 ## Architecture
 
@@ -102,4 +106,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This construct is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+This construct is licensed under the MIT License. See the [LICENSE](/packages/construct/LICENSE) file for details.
