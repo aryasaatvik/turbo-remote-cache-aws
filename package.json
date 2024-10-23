@@ -1,34 +1,16 @@
 {
-  "name": "turbo-remote-cache-aws",
-  "version": "0.1.0",
-  "bin": {
-    "turbo-remote-cache": "bin/turbo-remote-cache.js"
-  },
+  "name": "turbo-remote-cache-monorepo",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "build:lambda": "tsc -p lambda/tsconfig.json",
-    "build": "pnpm run build:lambda && cdk synth",
-    "deploy": "pnpm run build && cdk deploy",
-    "watch": "tsc -w",
-    "test": "jest",
-    "cdk": "cdk"
+    "test": "jest"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.145",
     "@types/jest": "^29.5.12",
-    "@types/node": "20.14.9",
-    "aws-cdk": "2.156.0",
-    "dotenv": "^16.4.5",
+    "esbuild": "^0.23.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.5",
-    "ts-node": "^10.9.2",
     "typescript": "~5.5.3"
   },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.645.0",
-    "@aws-sdk/s3-request-presigner": "^3.645.0",
-    "aws-cdk-lib": "2.156.0",
-    "aws-lambda": "^1.0.7",
-    "constructs": "^10.0.0",
-    "source-map-support": "^0.5.21"
-  }
+  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c"
 }
