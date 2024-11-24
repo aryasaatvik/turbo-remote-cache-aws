@@ -144,6 +144,11 @@ export class APIGateway extends Construct {
 
     const hashResource = artifactsResource.addResource('{hash}');
 
+    hashResource.addMethod('OPTIONS', new apigateway.LambdaIntegration(props.lambdaFunctions.preflightArtifactFunction), {
+      operationName: 'preflightArtifact',
+      methodResponses: [{ statusCode: '200' }],
+    });
+
     // GET /v8/artifacts/{hash}
     getArtifactIntegration(this, {
       artifactsBucket: props.artifactsBucket,

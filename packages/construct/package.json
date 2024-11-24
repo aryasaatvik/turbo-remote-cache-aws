@@ -2,13 +2,17 @@
   "name": "turbo-remote-cache-construct",
   "version": "1.0.0",
   "description": "A Turborepo Remote Cache implementation using AWS API Gateway, Lambda, S3, and DynamoDB.",
-  "author": "Saatvik Arya <aryasaatvik@gmail.com>",
+  "author": {
+    "name": "Saatvik Arya",
+    "email": "aryasaatvik@gmail.com"
+  },
   "homepage": "https://github.com/aryasaatvik/turbo-remote-cache-aws/tree/main/packages/construct#readme",
   "keywords": [
     "turbo",
     "turborepo",
     "remote-cache",
     "aws",
+    "awscdk",
     "construct",
     "cdk",
     "api-gateway",
@@ -40,8 +44,12 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.645.0",
     "@aws-sdk/client-s3": "^3.645.0",
+    "@aws-sdk/hash-node": "^3.374.0",
+    "@aws-sdk/protocol-http": "^3.374.0",
     "@aws-sdk/s3-request-presigner": "^3.645.0",
-    "@aws-sdk/util-dynamodb": "^3.645.0"
+    "@aws-sdk/url-parser": "^3.374.0",
+    "@aws-sdk/util-dynamodb": "^3.645.0",
+    "@aws-sdk/util-format-url": "^3.696.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",

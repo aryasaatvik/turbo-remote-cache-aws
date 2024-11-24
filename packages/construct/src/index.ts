@@ -69,6 +69,20 @@ export class TurboRemoteCache extends Construct {
           expiration: cdk.Duration.days(30),
         },
       ],
+      cors: [
+        {
+          allowedHeaders: ['*'],
+          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT, s3.HttpMethods.HEAD],
+          allowedOrigins: ['*'],
+          exposedHeaders: [
+            'User-Agent',
+            'Content-Type',
+            'Content-Length',
+            'x-artifact-duration',
+            'x-artifact-tag',
+          ],
+        }
+      ],
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       ...props.artifactsBucketProps,
     });

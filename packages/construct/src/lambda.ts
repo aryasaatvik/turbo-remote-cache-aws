@@ -17,7 +17,7 @@ export class LambdaFunctions extends Construct {
   public readonly loginSuccessFunction: lambda.Function;
   public readonly getUserInfoFunction: lambda.Function;
   public readonly tokenAuthorizerFunction: lambda.Function;
-
+  public readonly preflightArtifactFunction: lambda.Function;
   constructor(scope: Construct, id: string, props: LambdaFunctionsProps) {
     super(scope, id);
 
@@ -61,6 +61,16 @@ export class LambdaFunctions extends Construct {
       },
     });
 
+    this.preflightArtifactFunction = new lambda.Function(this, 'PreflightArtifactFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      functionName: 'turbo-remote-cache-preflight-artifact',
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/preflight-artifact')),
+      environment: {
+        ARTIFACTS_BUCKET: props.artifactsBucket.bucketName,
+      },
+    });
+
     // turbo login
     // TODO: implement lambda authorizer to validate third party JWT
     // this.initiateLoginFunction = new lambda.Function(this, 'InitiateLoginFunction', {
@@ -97,5 +107,7 @@ export class LambdaFunctions extends Construct {
     // Grant permissions
     props.eventsTable.grantReadWriteData(this.recordEventsFunction);
     props.eventsTable.grantReadData(this.artifactQueryFunction);
+
+    props.artifactsBucket.grantReadWrite(this.preflightArtifactFunction);
   }
 }
