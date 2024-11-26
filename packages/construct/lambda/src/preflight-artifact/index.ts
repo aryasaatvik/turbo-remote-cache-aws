@@ -6,7 +6,8 @@ import { parseUrl } from '@aws-sdk/url-parser';
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import { formatUrl } from '@aws-sdk/util-format-url';
 
-const getTeamFromAuthHeader = (authHeader: string) => {
+// use jwt from auth header to get team name
+function getTeamFromJWT(token: string) {
   return 'team'
 }
 
@@ -37,19 +38,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
   }
 
-  // get slug from querystring
-  // const slug = event.queryStringParameters?.slug;
+  const team = getTeamFromJWT(event.headers['Authorization']!)
 
   let command: GetObjectCommand | PutObjectCommand | undefined;
   if (requestMethod === 'GET') {
     command = new GetObjectCommand({
       Bucket: process.env.ARTIFACTS_BUCKET,
-      Key: `artifacts/${event.pathParameters?.hash}`,
+      Key: `${team}/${event.pathParameters?.hash}`,
     });
   } else if (requestMethod === 'PUT') {
     command = new PutObjectCommand({
       Bucket: process.env.ARTIFACTS_BUCKET,
-      Key: `artifacts/${event.pathParameters?.hash}`,
+      Key: `${team}/${event.pathParameters?.hash}`,
       ContentType: event.headers['content-type'],
     });
   }
@@ -80,7 +80,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     ...url,
     method: requestMethod,
     query: {
-      slug: getTeamFromAuthHeader(event.headers['authorization'] ?? ''),
+      slug: team
     },
     headers: requestHeaders,
   });
