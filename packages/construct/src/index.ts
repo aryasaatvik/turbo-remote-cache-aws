@@ -44,6 +44,11 @@ export interface TurboRemoteCacheProps {
    */
   artifactsBucketProps?: Partial<s3.BucketProps>,
   /**
+   * Whether to store events in the artifacts bucket
+   * @default false
+   */
+  storeEventsInBucket?: boolean;
+  /**
    * DynamoDB table props for the events table
    * @default
    *  tableName: 'turbo-remote-cache-events',
@@ -82,21 +87,26 @@ export class TurboRemoteCache extends Construct {
 
     artifactsBucket.grantReadWrite(s3Credentials);
 
-    const eventsTable = new dynamodb.Table(this, 'EventsTable', {
-      tableName: 'turbo-remote-cache-events',
-      partitionKey: { name: 'hash', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'sessionId', type: dynamodb.AttributeType.STRING },
-      billingMode: dynamodb.BillingMode.PROVISIONED,
-      readCapacity: 5,
-      writeCapacity: 5,
-      timeToLiveAttribute: 'ttl',
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      ...props.eventsTableProps,
-    });
+    let eventsTable: dynamodb.Table | undefined;
+
+    if (!props.storeEventsInBucket) {
+      eventsTable = new dynamodb.Table(this, 'EventsTable', {
+        tableName: 'turbo-remote-cache-events',
+        partitionKey: { name: 'hash', type: dynamodb.AttributeType.STRING },
+        sortKey: { name: 'sessionId', type: dynamodb.AttributeType.STRING },
+        billingMode: dynamodb.BillingMode.PROVISIONED,
+        readCapacity: 5,
+        writeCapacity: 5,
+        timeToLiveAttribute: 'ttl',
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        ...props.eventsTableProps,
+      });
+    }
 
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
       artifactsBucket,
       eventsTable,
+      storeEventsInBucket: props.storeEventsInBucket,
     });
 
     const api = new APIGateway(this, 'APIGateway', {

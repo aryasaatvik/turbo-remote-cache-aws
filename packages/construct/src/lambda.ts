@@ -6,7 +6,8 @@ import * as path from 'path';
 
 interface LambdaFunctionsProps {
   artifactsBucket: s3.Bucket;
-  eventsTable: dynamodb.Table;
+  eventsTable?: dynamodb.Table;
+  storeEventsInBucket?: boolean;
 }
 
 export class LambdaFunctions extends Construct {
@@ -27,7 +28,9 @@ export class LambdaFunctions extends Construct {
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/record-events')),
       environment: {
-        EVENTS_TABLE_NAME: props.eventsTable.tableName,
+        STORE_EVENTS_IN_BUCKET: props.storeEventsInBucket ? 'true' : 'false',
+        BUCKET_NAME: props.artifactsBucket.bucketName,
+        EVENTS_TABLE_NAME: props.eventsTable?.tableName ?? '',
       },
     });
 
@@ -37,7 +40,9 @@ export class LambdaFunctions extends Construct {
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/artifact-query')),
       environment: {
-        EVENTS_TABLE_NAME: props.eventsTable.tableName,
+        STORE_EVENTS_IN_BUCKET: props.storeEventsInBucket ? 'true' : 'false',
+        BUCKET_NAME: props.artifactsBucket.bucketName,
+        EVENTS_TABLE_NAME: props.eventsTable?.tableName ?? '',
       },
     });
 
@@ -95,7 +100,9 @@ export class LambdaFunctions extends Construct {
     props.artifactsBucket.grantRead(this.statusFunction);
 
     // Grant permissions
-    props.eventsTable.grantReadWriteData(this.recordEventsFunction);
-    props.eventsTable.grantReadData(this.artifactQueryFunction);
+    if (props.eventsTable) {
+      props.eventsTable.grantReadWriteData(this.recordEventsFunction);
+      props.eventsTable.grantReadData(this.artifactQueryFunction);
+    }
   }
 }
