@@ -8,6 +8,7 @@ interface LambdaFunctionsProps {
   artifactsBucket: s3.Bucket;
   eventsTable: dynamodb.Table;
   lambdaProps?: Partial<lambda.FunctionProps>;
+  hasAuthorizer: boolean;
 }
 
 export class LambdaFunctions extends Construct {
@@ -17,7 +18,7 @@ export class LambdaFunctions extends Construct {
   public readonly initiateLoginFunction: lambda.Function;
   public readonly loginSuccessFunction: lambda.Function;
   public readonly getUserInfoFunction: lambda.Function;
-  public readonly tokenAuthorizerFunction: lambda.Function;
+  public readonly tokenAuthorizerFunction: lambda.Function | undefined;
 
   constructor(scope: Construct, id: string, props: LambdaFunctionsProps) {
     super(scope, id);
@@ -55,16 +56,18 @@ export class LambdaFunctions extends Construct {
       ...props.lambdaProps,
     });
 
-    this.tokenAuthorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      functionName: 'turbo-remote-cache-token-authorizer',
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/token-authorizer')),
-      environment: {
-        TURBO_TOKEN: process.env.TURBO_TOKEN!,
-      },
-      ...props.lambdaProps,
-    });
+    if (!props.hasAuthorizer) {
+      this.tokenAuthorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        functionName: 'turbo-remote-cache-token-authorizer',
+        handler: 'index.handler',
+        code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/token-authorizer')),
+        environment: {
+          TURBO_TOKEN: process.env.TURBO_TOKEN!,
+        },
+        ...props.lambdaProps,
+      });
+    }
 
     // turbo login
     // TODO: implement lambda authorizer to validate third party JWT

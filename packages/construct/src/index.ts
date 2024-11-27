@@ -99,10 +99,13 @@ export class TurboRemoteCache extends Construct {
       ...props.eventsTableProps,
     });
 
+    const hasAuthorizer = Boolean(props.apiProps?.defaultMethodOptions?.authorizer);
+
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
       artifactsBucket,
       eventsTable,
       lambdaProps: props.lambdaProps,
+      hasAuthorizer,
     });
 
     const api = new APIGateway(this, 'APIGateway', {
