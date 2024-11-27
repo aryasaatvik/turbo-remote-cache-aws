@@ -7,6 +7,7 @@ import * as path from 'path';
 interface LambdaFunctionsProps {
   artifactsBucket: s3.Bucket;
   eventsTable: dynamodb.Table;
+  lambdaProps?: Partial<lambda.FunctionProps>;
 }
 
 export class LambdaFunctions extends Construct {
@@ -29,6 +30,7 @@ export class LambdaFunctions extends Construct {
       environment: {
         EVENTS_TABLE_NAME: props.eventsTable.tableName,
       },
+      ...props.lambdaProps,
     });
 
     this.artifactQueryFunction = new lambda.Function(this, 'ArtifactQueryFunction', {
@@ -39,6 +41,7 @@ export class LambdaFunctions extends Construct {
       environment: {
         EVENTS_TABLE_NAME: props.eventsTable.tableName,
       },
+      ...props.lambdaProps,
     });
 
     this.statusFunction = new lambda.Function(this, 'StatusFunction', {
@@ -49,6 +52,7 @@ export class LambdaFunctions extends Construct {
       environment: {
         BUCKET_NAME: props.artifactsBucket.bucketName,
       },
+      ...props.lambdaProps,
     });
 
     this.tokenAuthorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
@@ -59,6 +63,7 @@ export class LambdaFunctions extends Construct {
       environment: {
         TURBO_TOKEN: process.env.TURBO_TOKEN!,
       },
+      ...props.lambdaProps,
     });
 
     // turbo login
@@ -71,6 +76,7 @@ export class LambdaFunctions extends Construct {
     //   environment: {
     //     TURBO_TOKEN: process.env.TURBO_TOKEN!,
     //   },
+    //   ...props.lambdaProps,
     // });
 
     // this.loginSuccessFunction = new lambda.Function(this, 'LoginSuccessFunction', {
@@ -81,6 +87,7 @@ export class LambdaFunctions extends Construct {
     //   environment: {
     //     TURBO_TOKEN: process.env.TURBO_TOKEN!,
     //   },
+    //   ...props.lambdaProps,
     // });
 
     // this.getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
@@ -88,6 +95,7 @@ export class LambdaFunctions extends Construct {
     //   functionName: 'turbo-remote-cache-get-user-info',
     //   handler: 'index.handler',
     //   code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/get-user-info')),
+    //   ...props.lambdaProps,
     // });
 
     props.artifactsBucket.grantRead(this.artifactQueryFunction);
