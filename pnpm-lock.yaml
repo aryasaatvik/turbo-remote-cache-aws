@@ -27,7 +27,7 @@ importers:
   apps/infrastructure:
     dependencies:
       aws-cdk-lib:
-        specifier: 2.156.0
+        specifier: ^2.156.0
         version: 2.156.0(constructs@10.3.0)
       constructs:
         specifier: ^10.0.0
@@ -46,8 +46,8 @@ importers:
         specifier: 20.14.9
         version: 20.14.9
       aws-cdk:
-        specifier: 2.156.0
-        version: 2.156.0
+        specifier: 2.176.0
+        version: 2.176.0
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -1065,8 +1065,8 @@ packages:
       - yaml
       - mime-types
 
-  aws-cdk@2.156.0:
-    resolution: {integrity: sha512-f8Uk3XK1mqG1j9lP9Dj8IKVC6MOvODHZ0iQ3Ytpv3O9hDOu5qGpfksw43S20I8jsJwI/caauO8ZNTF+xPBpYpg==}
+  aws-cdk@2.176.0:
+    resolution: {integrity: sha512-yRjIXzK2ddznwuSjasWAViYBtBSQbEu6GHlylaC3GHsIUPhrK3KguqIuhdlxjMeiQ1Fvok8REDLCReZJdrSLLg==}
     engines: {node: '>= 14.15.0'}
     hasBin: true
 
@@ -3516,7 +3516,7 @@ snapshots:
       '@aws-cdk/cloud-assembly-schema': 36.0.24
       constructs: 10.3.0
 
-  aws-cdk@2.156.0:
+  aws-cdk@2.176.0:
     optionalDependencies:
       fsevents: 2.3.2
 
