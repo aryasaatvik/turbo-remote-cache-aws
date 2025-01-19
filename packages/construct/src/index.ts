@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cdk from 'aws-cdk-lib';
 import { LambdaFunctions } from './lambda';
@@ -10,10 +11,10 @@ export interface TurboRemoteCacheProps {
   /**
    * Turbo Token
    * used to authenticate requests to the API
-   * @required
    * @example generate a random string using `openssl rand -base64 32`
+   * required if custom authorizer (apiProps.defaultMethodOptions.authorizer) is not provided
    */
-  turboToken: string;
+  turboToken?: string;
   /**
    * API Gateway props
    * @default
@@ -54,6 +55,10 @@ export interface TurboRemoteCacheProps {
    *  removalPolicy: cdk.RemovalPolicy.DESTROY,
    */
   eventsTableProps?: Partial<dynamodb.TableProps>
+  /**
+   * common lambda function props for all lambda functions
+   */
+  lambdaProps?: Partial<lambda.FunctionProps>
 }
 
 export class TurboRemoteCache extends Construct {
@@ -108,9 +113,13 @@ export class TurboRemoteCache extends Construct {
       ...props.eventsTableProps,
     });
 
+    const hasAuthorizer = Boolean(props.apiProps?.defaultMethodOptions?.authorizer);
+
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
       artifactsBucket,
       eventsTable,
+      lambdaProps: props.lambdaProps,
+      hasAuthorizer,
     });
 
     const api = new APIGateway(this, 'APIGateway', {

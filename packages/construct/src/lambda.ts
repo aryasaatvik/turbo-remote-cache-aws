@@ -7,6 +7,8 @@ import * as path from 'path';
 interface LambdaFunctionsProps {
   artifactsBucket: s3.Bucket;
   eventsTable: dynamodb.Table;
+  lambdaProps?: Partial<lambda.FunctionProps>;
+  hasAuthorizer: boolean;
 }
 
 export class LambdaFunctions extends Construct {
@@ -16,8 +18,9 @@ export class LambdaFunctions extends Construct {
   public readonly initiateLoginFunction: lambda.Function;
   public readonly loginSuccessFunction: lambda.Function;
   public readonly getUserInfoFunction: lambda.Function;
-  public readonly tokenAuthorizerFunction: lambda.Function;
+  public readonly tokenAuthorizerFunction: lambda.Function | undefined;
   public readonly preflightArtifactFunction: lambda.Function;
+
   constructor(scope: Construct, id: string, props: LambdaFunctionsProps) {
     super(scope, id);
 
@@ -29,6 +32,7 @@ export class LambdaFunctions extends Construct {
       environment: {
         EVENTS_TABLE_NAME: props.eventsTable.tableName,
       },
+      ...props.lambdaProps,
     });
 
     this.artifactQueryFunction = new lambda.Function(this, 'ArtifactQueryFunction', {
@@ -39,6 +43,7 @@ export class LambdaFunctions extends Construct {
       environment: {
         EVENTS_TABLE_NAME: props.eventsTable.tableName,
       },
+      ...props.lambdaProps,
     });
 
     this.statusFunction = new lambda.Function(this, 'StatusFunction', {
@@ -49,17 +54,21 @@ export class LambdaFunctions extends Construct {
       environment: {
         BUCKET_NAME: props.artifactsBucket.bucketName,
       },
+      ...props.lambdaProps,
     });
 
-    this.tokenAuthorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      functionName: 'turbo-remote-cache-token-authorizer',
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/token-authorizer')),
-      environment: {
-        TURBO_TOKEN: process.env.TURBO_TOKEN!,
-      },
-    });
+    if (!props.hasAuthorizer) {
+      this.tokenAuthorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        functionName: 'turbo-remote-cache-token-authorizer',
+        handler: 'index.handler',
+        code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/token-authorizer')),
+        environment: {
+          TURBO_TOKEN: process.env.TURBO_TOKEN!,
+        },
+        ...props.lambdaProps,
+      });
+    }
 
     this.preflightArtifactFunction = new lambda.Function(this, 'PreflightArtifactFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -81,6 +90,7 @@ export class LambdaFunctions extends Construct {
     //   environment: {
     //     TURBO_TOKEN: process.env.TURBO_TOKEN!,
     //   },
+    //   ...props.lambdaProps,
     // });
 
     // this.loginSuccessFunction = new lambda.Function(this, 'LoginSuccessFunction', {
@@ -91,6 +101,7 @@ export class LambdaFunctions extends Construct {
     //   environment: {
     //     TURBO_TOKEN: process.env.TURBO_TOKEN!,
     //   },
+    //   ...props.lambdaProps,
     // });
 
     // this.getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
@@ -98,6 +109,7 @@ export class LambdaFunctions extends Construct {
     //   functionName: 'turbo-remote-cache-get-user-info',
     //   handler: 'index.handler',
     //   code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/get-user-info')),
+    //   ...props.lambdaProps,
     // });
 
     props.artifactsBucket.grantRead(this.artifactQueryFunction);
