@@ -14,7 +14,7 @@ export function getArtifactIntegration(scope: Construct, props: GetArtifactInteg
   const getIntegration = new apigateway.AwsIntegration({
     service: 's3',
     integrationHttpMethod: 'GET',
-    path: `${props.artifactsBucket.bucketName}/{slug}/{hash}`,
+    path: `${props.artifactsBucket.bucketName}/{teamId}/{hash}`,
     options: {
       credentialsRole: props.s3Credentials,
       integrationResponses: [
@@ -53,7 +53,7 @@ export function getArtifactIntegration(scope: Construct, props: GetArtifactInteg
       ],
       requestParameters: {
         'integration.request.path.hash': 'method.request.path.hash',
-        'integration.request.path.slug': 'method.request.querystring.slug',
+        'integration.request.path.teamId': 'method.request.querystring.teamId',
       },
     },
   });
@@ -62,7 +62,7 @@ export function getArtifactIntegration(scope: Construct, props: GetArtifactInteg
     operationName: 'downloadArtifact',
     requestParameters: {
       'method.request.path.hash': true,
-      'method.request.querystring.slug': true,
+      'method.request.querystring.teamId': true,
     },
     methodResponses: [
       {

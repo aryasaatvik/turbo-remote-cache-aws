@@ -24,6 +24,9 @@ export const handler: APIGatewayTokenAuthorizerHandler = async (event) => {
           Effect: 'Allow',
           Resource: `arn:aws:execute-api:${region}:${accountId}:${apiId}/${stage}/*/*`
         }]
+      },
+      context: {
+        teamId: 'team_turbo_default'
       }
     };
   } else {

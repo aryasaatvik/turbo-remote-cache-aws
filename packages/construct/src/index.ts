@@ -59,6 +59,14 @@ export interface TurboRemoteCacheProps {
    * common lambda function props for all lambda functions
    */
   lambdaProps?: Partial<lambda.FunctionProps>
+  /**
+   * custom authorizer lambda function
+   */
+  authorizerFunction?: lambda.Function
+  /**
+   * custom user info lambda function
+   */
+  userInfoFunction?: lambda.Function
 }
 
 export class TurboRemoteCache extends Construct {
@@ -73,6 +81,20 @@ export class TurboRemoteCache extends Construct {
         {
           expiration: cdk.Duration.days(30),
         },
+      ],
+      cors: [
+        {
+          allowedHeaders: ['*'],
+          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT, s3.HttpMethods.HEAD],
+          allowedOrigins: ['*'],
+          exposedHeaders: [
+            'User-Agent',
+            'Content-Type',
+            'Content-Length',
+            'x-artifact-duration',
+            'x-artifact-tag',
+          ],
+        }
       ],
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       ...props.artifactsBucketProps,
@@ -99,13 +121,13 @@ export class TurboRemoteCache extends Construct {
       ...props.eventsTableProps,
     });
 
-    const hasAuthorizer = Boolean(props.apiProps?.defaultMethodOptions?.authorizer);
 
     const lambdaFunctions = new LambdaFunctions(this, 'LambdaFunctions', {
       artifactsBucket,
       eventsTable,
       lambdaProps: props.lambdaProps,
-      hasAuthorizer,
+      authorizerFunction: props.authorizerFunction,
+      userInfoFunction: props.userInfoFunction,
     });
 
     const api = new APIGateway(this, 'APIGateway', {

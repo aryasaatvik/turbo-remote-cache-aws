@@ -22,9 +22,9 @@ export class APIGateway extends Construct {
     const logGroup = logs.LogGroup.fromLogGroupName(this, 'LogGroup', '/aws/apigateway/turbo-remote-cache-api');
 
     let tokenAuthorizer: apigateway.TokenAuthorizer | undefined;
-    if (props.lambdaFunctions.tokenAuthorizerFunction) {
+    if (props.lambdaFunctions.authorizerFunction) {
       tokenAuthorizer = new apigateway.TokenAuthorizer(this, 'TokenAuthorizer', {
-        handler: props.lambdaFunctions.tokenAuthorizerFunction,
+        handler: props.lambdaFunctions.authorizerFunction,
         resultsCacheTtl: cdk.Duration.minutes(60),
         identitySource: 'method.request.header.Authorization',
       });
@@ -144,6 +144,11 @@ export class APIGateway extends Construct {
 
     const hashResource = artifactsResource.addResource('{hash}');
 
+    hashResource.addMethod('OPTIONS', new apigateway.LambdaIntegration(props.lambdaFunctions.preflightArtifactFunction), {
+      operationName: 'preflightArtifact',
+      methodResponses: [{ statusCode: '200' }],
+    });
+
     // GET /v8/artifacts/{hash}
     getArtifactIntegration(this, {
       artifactsBucket: props.artifactsBucket,
@@ -257,30 +262,30 @@ export class APIGateway extends Construct {
     //   restApiId: api.restApiId,
     // });
 
-    // const v2Resource = api.root.addResource('v2');
+    const v2Resource = api.root.addResource('v2');
 
-    // const userResource = v2Resource.addResource('user');
+    const userResource = v2Resource.addResource('user');
 
-    // // GET /v2/user
-    // userResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.getUserInfoFunction), {
-    //   operationName: 'getUserInfo',
-    // });
+    // GET /v2/user
+    userResource.addMethod('GET', new apigateway.LambdaIntegration(props.lambdaFunctions.getUserInfoFunction), {
+      operationName: 'getUserInfo',
+    });
 
-    // const getUserInfoDocumentationPart = {
-    //   description: 'Retrieves information about the authenticated user.',
-    //   summary: 'Get user info',
-    //   tags: ['login'],
-    // }
+    const getUserInfoDocumentationPart = {
+      description: 'Retrieves information about the authenticated user.',
+      summary: 'Get user info',
+      tags: ['login'],
+    }
 
-    // new apigateway.CfnDocumentationPart(this, 'TurborepoUserInfoDocumentationPart', {
-    //   location: {
-    //     type: 'METHOD',
-    //     method: 'GET',
-    //     path: '/v2/user',
-    //   },
-    //   properties: JSON.stringify(getUserInfoDocumentationPart),
-    //   restApiId: api.restApiId,
-    // });
+    new apigateway.CfnDocumentationPart(this, 'TurborepoUserInfoDocumentationPart', {
+      location: {
+        type: 'METHOD',
+        method: 'GET',
+        path: '/v2/user',
+      },
+      properties: JSON.stringify(getUserInfoDocumentationPart),
+      restApiId: api.restApiId,
+    });
 
     // cloudfront domain name for CNAME
     new cdk.CfnOutput(this, 'CloudfrontAliasDomainName', {
