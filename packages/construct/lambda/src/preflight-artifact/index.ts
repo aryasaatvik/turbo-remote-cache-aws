@@ -21,11 +21,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return acc;
   }, {});
 
-  console.log('requestMethod', requestMethod);
-  console.log('signableHeaders', signableHeaders);
-  console.log('requestHeaders', requestHeaders);
-  console.log('event', event);
-
   if (!requestMethod) {
     return {
       statusCode: 400,
@@ -95,6 +90,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   // turborepo cli appends teamId to the url, so we need to remove it to ensure valid signature
   const responseUrl = new URL(formattedUrl);
   responseUrl.searchParams.delete('teamId');
+
   return {
     statusCode: 200,
     headers: {
