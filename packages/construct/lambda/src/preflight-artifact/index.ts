@@ -1,15 +1,10 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import type { APIGatewayProxyHandler } from 'aws-lambda';
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
 import { Hash } from '@aws-sdk/hash-node';
 import { parseUrl } from '@aws-sdk/url-parser';
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import { formatUrl } from '@aws-sdk/util-format-url';
-
-// use jwt from auth header to get team name
-function getTeamFromJWT(token: string) {
-  return 'team'
-}
 
 /**
  * Preflight request for the artifact resource
@@ -34,22 +29,29 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!requestMethod) {
     return {
       statusCode: 400,
-      body: 'Missing required headers',
+      body: JSON.stringify({ error: 'Missing required headers' }),
     };
   }
 
-  const team = getTeamFromJWT(event.headers['Authorization']!)
+  const teamId = event.requestContext.authorizer?.teamId;
+
+  if (!teamId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Missing teamId' }),
+    };
+  }
 
   let command: GetObjectCommand | PutObjectCommand | undefined;
   if (requestMethod === 'GET') {
     command = new GetObjectCommand({
       Bucket: process.env.ARTIFACTS_BUCKET,
-      Key: `${team}/${event.pathParameters?.hash}`,
+      Key: `${teamId}/${event.pathParameters?.hash}`,
     });
   } else if (requestMethod === 'PUT') {
     command = new PutObjectCommand({
       Bucket: process.env.ARTIFACTS_BUCKET,
-      Key: `${team}/${event.pathParameters?.hash}`,
+      Key: `${teamId}/${event.pathParameters?.hash}`,
       ContentType: event.headers['content-type'],
     });
   }
@@ -57,7 +59,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!command) {
     return {
       statusCode: 400,
-      body: 'Invalid request method',
+      body: JSON.stringify({ error: 'Invalid request method' }),
     };
   }
 
@@ -75,12 +77,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     sha256: Hash.bind(null, 'sha256'),
   });
 
-  const url = parseUrl(`https://${process.env.ARTIFACTS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/artifacts/${event.pathParameters?.hash}`);
+  const url = parseUrl(`https://${process.env.ARTIFACTS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${teamId}/${event.pathParameters?.hash}`);
   const request = new HttpRequest({
     ...url,
     method: requestMethod,
     query: {
-      slug: team
+      teamId: teamId,
     },
     headers: requestHeaders,
   });
@@ -90,10 +92,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   });
   const formattedUrl = formatUrl(presignedUrl);
 
+  // turborepo cli appends teamId to the url, so we need to remove it to ensure valid signature
+  const responseUrl = new URL(formattedUrl);
+  responseUrl.searchParams.delete('teamId');
   return {
     statusCode: 200,
     headers: {
-      location: formattedUrl,
+      location: responseUrl.href,
       allow_authorization_header: false,
     },
     body: '',
