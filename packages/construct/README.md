@@ -18,8 +18,8 @@ The Turborepo Remote Cache API allows teams to share and reuse build artifacts a
 ## Features
 
 - :zap: High-performance S3 integration for artifact storage
-- :lock: Secure authentication using bearer token
-- :chart_with_upwards_trend: Scalable architecture using serverless AWS services
+- :lock: Flexible authentication with custom authorizer support
+- :key: Pre-signed URL support for direct S3 access
 - :globe_with_meridians: Optional custom domain support
 - :gear: Easy integration with existing CDK stacks
 - :moneybag: Cost-effective usage-based pricing model
@@ -51,6 +51,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { TurboRemoteCache } from 'turbo-remote-cache-construct';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 export class TurboRemoteCacheStack extends cdk.Stack {
@@ -91,7 +92,28 @@ export class TurboRemoteCacheStack extends cdk.Stack {
 }
 ```
 
-The S3 bucket, DynamoDB table, and API Gateway can be configured using the optional props. The defaults are are provided in the jsdoc comments and can be viewed in the [source code](/packages/construct/src/index.ts). The example above uses apiProps to configure a custom domain name for the API Gateway. It also uses artifactsBucketProps to customize the bucketName and removalPolicy to retain the bucket when the stack is deleted. Similar options are available for the DynamoDB table.
+The S3 bucket, DynamoDB table, and API Gateway can be configured using the optional props. The defaults are are provided in the jsdoc 
+comments and can be viewed in the [source code](/packages/construct/src/index.ts). The example above uses apiProps to configure a custom 
+domain name for the API Gateway. It also uses artifactsBucketProps to customize the bucketName and removalPolicy to retain the bucket when 
+the stack is deleted. Similar options are available for the DynamoDB table.
+
+## Breaking Changes in 2.0
+
+### Authentication
+- Deprecated simple token-based authentication (`turboToken`)
+- Added support for custom authorizers via `authorizerFunction`
+- Authorizer must provide `teamId` in the context
+
+### Team Identification
+- Removed support for `teamSlug` in favor of `teamId`
+- All artifact paths now use `teamId` instead of `slug`
+- API endpoints expect `teamId` query parameter
+
+### New Features
+- Added preflight/presigned URL support for S3 operations
+- Added CORS support for S3 bucket
+- Added custom user info endpoint support
+- Support for direct S3 access using presigned URLs
 
 ## Architecture
 
@@ -101,7 +123,7 @@ The construct uses API Gateway, Lambda, S3 integration, and DynamoDB to create a
 
 - **API Gateway**: Used to create a REST API that will be used to interact with the Remote Cache.
 - **Lambda**: Used to handle the API requests and responses for non-artifact related endpoints.
-- **S3 Integration**: Allows API Gateway to integrate with S3 without a Lambda function which allows for a larger payload size and lower latency.
+- **S3 Integration**: Allows API Gateway to integrate with S3 without a Lambda function which allows for a larger payload size and lower latency. Supports presigned URLs for direct S3 access using preflight requests.
 - **S3**: Used to store the Remote Cache artifacts.
 - **DynamoDB**: Used to store the Remote Cache events.
 

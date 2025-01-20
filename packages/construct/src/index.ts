@@ -10,11 +10,37 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 export interface TurboRemoteCacheProps {
   /**
    * Turbo Token
-   * used to authenticate requests to the API
+   * @deprecated Use authorizerFunction instead for authentication
+   * Used only if custom authorizer is not provided
    * @example generate a random string using `openssl rand -base64 32`
-   * required if custom authorizer (apiProps.defaultMethodOptions.authorizer) is not provided
    */
   turboToken?: string;
+
+  /**
+   * Custom authorizer lambda function for API authentication
+   * This function should return the teamId in the authorizer context
+   * Replaces the deprecated turboToken authentication
+   * @example
+   * ```typescript
+   * new TurboRemoteCache(this, 'Cache', {
+   *   authorizerFunction: myCustomAuthorizer,
+   * });
+   * ```
+   */
+  authorizerFunction?: lambda.Function;
+
+  /**
+   * Custom user info lambda function
+   * Implements the /v2/user endpoint for retrieving authenticated user information
+   * @example
+   * ```typescript
+   * new TurboRemoteCache(this, 'Cache', {
+   *   userInfoFunction: myUserInfoFunction,
+   * });
+   * ```
+   */
+  userInfoFunction?: lambda.Function;
+
   /**
    * API Gateway props
    * @default
@@ -31,19 +57,23 @@ export interface TurboRemoteCacheProps {
    *  },
    *  binaryMediaTypes: ['application/octet-stream'],
    */
-  apiProps?: Partial<apigateway.RestApiProps>,
+  apiProps?: Partial<apigateway.RestApiProps>;
+
   /**
    * S3 bucket props for the artifacts bucket
    * @default
    *  bucketName: 'turbo-remote-cache-artifacts',
-   *  lifecycleRules: [
-   *    {
-   *      expiration: cdk.Duration.days(30),
-   *    },
-   *  ],
+   *  lifecycleRules: [{ expiration: cdk.Duration.days(30) }],
+   *  cors: [{
+   *    allowedHeaders: ['*'],
+   *    allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT, s3.HttpMethods.HEAD],
+   *    allowedOrigins: ['*'],
+   *    exposedHeaders: ['User-Agent', 'Content-Type', 'Content-Length', 'x-artifact-duration', 'x-artifact-tag'],
+   *  }],
    *  removalPolicy: cdk.RemovalPolicy.DESTROY,
    */
-  artifactsBucketProps?: Partial<s3.BucketProps>,
+  artifactsBucketProps?: Partial<s3.BucketProps>;
+
   /**
    * DynamoDB table props for the events table
    * @default
@@ -54,19 +84,12 @@ export interface TurboRemoteCacheProps {
    *  timeToLiveAttribute: 'ttl',
    *  removalPolicy: cdk.RemovalPolicy.DESTROY,
    */
-  eventsTableProps?: Partial<dynamodb.TableProps>
+  eventsTableProps?: Partial<dynamodb.TableProps>;
+
   /**
-   * common lambda function props for all lambda functions
+   * Common lambda function props for all lambda functions
    */
-  lambdaProps?: Partial<lambda.FunctionProps>
-  /**
-   * custom authorizer lambda function
-   */
-  authorizerFunction?: lambda.Function
-  /**
-   * custom user info lambda function
-   */
-  userInfoFunction?: lambda.Function
+  lambdaProps?: Partial<lambda.FunctionProps>;
 }
 
 export class TurboRemoteCache extends Construct {
