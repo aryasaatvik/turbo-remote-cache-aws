@@ -5,6 +5,7 @@ import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export class TurboRemoteCacheStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -16,6 +17,18 @@ export class TurboRemoteCacheStack extends cdk.Stack {
       throw new Error('TURBO_TOKEN is not set');
     }
 
+    const aryaAuthorizer = new NodejsFunction(this, 'AryaAuthorizer', {
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '..', 'lambda', 'arya-authorizer', 'index.ts'),
+    });
+
+    const userInfo = new NodejsFunction(this, 'UserInfo', {
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '..', 'lambda', 'get-user-info', 'index.ts'),
+    });
+
     new TurboRemoteCache(this, 'TurboRemoteCache', {
       turboToken: process.env.TURBO_TOKEN,
       apiProps: {
@@ -25,6 +38,11 @@ export class TurboRemoteCacheStack extends cdk.Stack {
           endpointType: apigateway.EndpointType.EDGE,
           securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
         },
+      },
+      authorizerFunction: aryaAuthorizer,
+      userInfoFunction: userInfo,
+      lambdaProps: {
+        memorySize: 1024,
       },
       artifactsBucketProps: {
         bucketName: 'turbo-remote-cache-artifacts',
