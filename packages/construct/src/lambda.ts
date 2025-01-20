@@ -8,7 +8,8 @@ interface LambdaFunctionsProps {
   artifactsBucket: s3.Bucket;
   eventsTable: dynamodb.Table;
   lambdaProps?: Partial<lambda.FunctionProps>;
-  hasAuthorizer: boolean;
+  authorizerFunction?: lambda.Function;
+  userInfoFunction?: lambda.Function;
 }
 
 export class LambdaFunctions extends Construct {
@@ -18,7 +19,7 @@ export class LambdaFunctions extends Construct {
   public readonly initiateLoginFunction: lambda.Function;
   public readonly loginSuccessFunction: lambda.Function;
   public readonly getUserInfoFunction: lambda.Function;
-  public readonly tokenAuthorizerFunction: lambda.Function | undefined;
+  public readonly authorizerFunction: lambda.Function;
   public readonly preflightArtifactFunction: lambda.Function;
 
   constructor(scope: Construct, id: string, props: LambdaFunctionsProps) {
@@ -57,8 +58,10 @@ export class LambdaFunctions extends Construct {
       ...props.lambdaProps,
     });
 
-    if (!props.hasAuthorizer) {
-      this.tokenAuthorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
+    if (props.authorizerFunction) {
+      this.authorizerFunction = props.authorizerFunction;
+    } else {
+      this.authorizerFunction = new lambda.Function(this, 'TokenAuthorizerFunction', {
         runtime: lambda.Runtime.NODEJS_20_X,
         functionName: 'turbo-remote-cache-token-authorizer',
         handler: 'index.handler',
@@ -66,6 +69,18 @@ export class LambdaFunctions extends Construct {
         environment: {
           TURBO_TOKEN: process.env.TURBO_TOKEN!,
         },
+        ...props.lambdaProps,
+      });
+    }
+
+    if (props.userInfoFunction) {
+      this.getUserInfoFunction = props.userInfoFunction;
+    } else {
+      this.getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        functionName: 'turbo-remote-cache-get-user-info',
+        handler: 'index.handler',
+        code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/get-user-info')),
         ...props.lambdaProps,
       });
     }
@@ -101,14 +116,6 @@ export class LambdaFunctions extends Construct {
     //   environment: {
     //     TURBO_TOKEN: process.env.TURBO_TOKEN!,
     //   },
-    //   ...props.lambdaProps,
-    // });
-
-    // this.getUserInfoFunction = new lambda.Function(this, 'GetUserInfoFunction', {
-    //   runtime: lambda.Runtime.NODEJS_20_X,
-    //   functionName: 'turbo-remote-cache-get-user-info',
-    //   handler: 'index.handler',
-    //   code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/dist/get-user-info')),
     //   ...props.lambdaProps,
     // });
 
